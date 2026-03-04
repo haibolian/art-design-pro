@@ -115,6 +115,40 @@ declare namespace Api {
 
   /** 系统管理类型 */
   namespace SystemManage {
+    /** 树形节点 */
+    interface TreeSelectNode {
+      id: number | string
+      label: string
+      disabled?: boolean
+      children?: TreeSelectNode[]
+      [key: string]: any
+    }
+
+    /** 部门信息 */
+    interface DeptInfo {
+      deptId?: number
+      deptName?: string
+      [key: string]: any
+    }
+
+    /** 岗位信息 */
+    interface PostItem {
+      postId?: number
+      postName?: string
+      status?: '0' | '1'
+      [key: string]: any
+    }
+
+    /** 角色选项 */
+    interface RoleOption {
+      roleId?: number
+      roleName?: string
+      roleKey?: string
+      roleSort?: number
+      status?: '0' | '1'
+      [key: string]: any
+    }
+
     /** 用户列表 */
     type UserList = Api.Common.PaginatedResponse<UserListItem> & {
       rows?: UserListItem[]
@@ -128,27 +162,52 @@ declare namespace Api {
       userId?: number
       id?: number
       avatar?: string
-      status?: string
+      status?: '0' | '1'
       userName?: string
       nickName?: string
       userGender?: string
-      sex?: string
+      sex?: '0' | '1' | '2'
       userPhone?: string
       phonenumber?: string
       userEmail?: string
       email?: string
       userRoles?: string[]
+      deptId?: number
+      dept?: DeptInfo
+      postIds?: number[]
+      roleIds?: number[]
+      password?: string
+      remark?: string
       createBy?: string
       createTime?: string
       updateBy?: string
       updateTime?: string
+      [key: string]: any
     }
 
     /** 用户搜索参数 */
-    type UserSearchParams = Partial<
-      Pick<UserListItem, 'id' | 'userName' | 'userGender' | 'userPhone' | 'userEmail' | 'status'> &
-        Api.Common.CommonSearchParams
-    >
+    interface UserSearchParams extends Partial<Api.Common.CommonSearchParams> {
+      userName?: string
+      phonenumber?: string
+      status?: '0' | '1'
+      deptId?: number
+      beginTime?: string
+      endTime?: string
+      [key: string]: any
+    }
+
+    /** 用户新增/编辑参数 */
+    type UserPayload = Partial<UserListItem>
+
+    /** 用户详情响应 */
+    interface UserDetailResponse {
+      data?: UserListItem
+      roleIds?: number[]
+      postIds?: number[]
+      roles?: RoleOption[]
+      posts?: PostItem[]
+      [key: string]: any
+    }
 
     /** 角色列表 */
     type RoleList = Api.Common.PaginatedResponse<RoleListItem> & {
@@ -160,18 +219,76 @@ declare namespace Api {
 
     /** 角色列表项 */
     interface RoleListItem {
-      roleId: number
-      roleName: string
-      roleCode: string
-      description: string
-      enabled: boolean
-      createTime: string
+      roleId?: number
+      roleName?: string
+      roleCode?: string
+      roleKey?: string
+      roleSort?: number
+      description?: string
+      enabled?: boolean
+      status?: '0' | '1'
+      dataScope?: '1' | '2' | '3' | '4' | '5'
+      menuCheckStrictly?: boolean
+      deptCheckStrictly?: boolean
+      menuIds?: number[]
+      deptIds?: number[]
+      remark?: string
+      createTime?: string
+      [key: string]: any
     }
 
     /** 角色搜索参数 */
-    type RoleSearchParams = Partial<
-      Pick<RoleListItem, 'roleId' | 'roleName' | 'roleCode' | 'description' | 'enabled'> &
-        Api.Common.CommonSearchParams
-    >
+    interface RoleSearchParams extends Partial<Api.Common.CommonSearchParams> {
+      roleName?: string
+      roleKey?: string
+      status?: '0' | '1'
+      beginTime?: string
+      endTime?: string
+      [key: string]: any
+    }
+
+    /** 角色新增/编辑参数 */
+    type RolePayload = Partial<RoleListItem>
+
+    /** 角色菜单树响应 */
+    interface RoleMenuTreeResponse {
+      checkedKeys: number[]
+      menus: TreeSelectNode[]
+      [key: string]: any
+    }
+
+    /** 菜单查询参数 */
+    interface MenuQueryParams {
+      menuName?: string
+      status?: '0' | '1'
+    }
+
+    /** 菜单类型 */
+    type MenuType = 'M' | 'C' | 'F'
+
+    /** 菜单列表项 */
+    interface MenuListItem {
+      menuId?: number
+      parentId?: number
+      menuName?: string
+      orderNum?: number
+      path?: string
+      component?: string
+      query?: string
+      routeName?: string
+      perms?: string
+      icon?: string
+      isFrame?: '0' | '1'
+      isCache?: '0' | '1'
+      menuType?: MenuType
+      visible?: '0' | '1'
+      status?: '0' | '1'
+      createTime?: string
+      children?: MenuListItem[]
+      [key: string]: any
+    }
+
+    /** 菜单新增/编辑参数 */
+    type MenuPayload = Partial<MenuListItem>
   }
 }

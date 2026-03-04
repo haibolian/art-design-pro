@@ -2,382 +2,404 @@
   <ElDialog
     :title="dialogTitle"
     :model-value="visible"
-    @update:model-value="handleCancel"
-    width="860px"
+    width="720px"
     align-center
-    class="menu-dialog"
+    destroy-on-close
+    @update:model-value="handleVisibleChange"
     @closed="handleClosed"
   >
-    <ArtForm
-      ref="formRef"
-      v-model="form"
-      :items="formItems"
-      :rules="rules"
-      :span="width > 640 ? 12 : 24"
-      :gutter="20"
-      label-width="100px"
-      :show-reset="false"
-      :show-submit="false"
-    >
-      <template #menuType>
-        <ElRadioGroup v-model="form.menuType" :disabled="disableMenuType">
-          <ElRadioButton value="menu" label="menu">菜单</ElRadioButton>
-          <ElRadioButton value="button" label="button">按钮</ElRadioButton>
-        </ElRadioGroup>
-      </template>
-    </ArtForm>
+    <ElForm ref="formRef" :model="form" :rules="rules" label-width="100px" v-loading="formLoading">
+      <ElRow :gutter="16">
+        <ElCol :span="24">
+          <ElFormItem label="上级菜单" prop="parentId">
+            <ElTreeSelect
+              v-model="form.parentId"
+              :data="menuOptions"
+              :props="treeProps"
+              value-key="menuId"
+              check-strictly
+              default-expand-all
+              placeholder="请选择上级菜单"
+            />
+          </ElFormItem>
+        </ElCol>
+
+        <ElCol :span="24">
+          <ElFormItem label="菜单类型" prop="menuType">
+            <ElRadioGroup v-model="form.menuType">
+              <ElRadio value="M">目录</ElRadio>
+              <ElRadio value="C">菜单</ElRadio>
+              <ElRadio value="F">按钮</ElRadio>
+            </ElRadioGroup>
+          </ElFormItem>
+        </ElCol>
+
+        <ElCol v-if="form.menuType !== 'F'" :span="12">
+          <ElFormItem label="菜单图标" prop="icon">
+            <ElInput v-model="form.icon" clearable placeholder="请输入图标名称，如 dashboard" />
+          </ElFormItem>
+        </ElCol>
+
+        <ElCol :span="12">
+          <ElFormItem label="显示排序" prop="orderNum">
+            <ElInputNumber
+              v-model="form.orderNum"
+              :min="0"
+              controls-position="right"
+              style="width: 100%"
+            />
+          </ElFormItem>
+        </ElCol>
+
+        <ElCol :span="12">
+          <ElFormItem label="菜单名称" prop="menuName">
+            <ElInput v-model="form.menuName" placeholder="请输入菜单名称" />
+          </ElFormItem>
+        </ElCol>
+
+        <ElCol v-if="form.menuType === 'C'" :span="12">
+          <ElFormItem label="路由名称" prop="routeName">
+            <ElInput v-model="form.routeName" clearable placeholder="请输入路由名称" />
+          </ElFormItem>
+        </ElCol>
+
+        <ElCol v-if="form.menuType !== 'F'" :span="12">
+          <ElFormItem label="是否外链" prop="isFrame">
+            <ElRadioGroup v-model="form.isFrame">
+              <ElRadio value="0">是</ElRadio>
+              <ElRadio value="1">否</ElRadio>
+            </ElRadioGroup>
+          </ElFormItem>
+        </ElCol>
+
+        <ElCol v-if="form.menuType !== 'F'" :span="12">
+          <ElFormItem label="路由地址" prop="path">
+            <ElInput v-model="form.path" placeholder="请输入路由地址" />
+          </ElFormItem>
+        </ElCol>
+
+        <ElCol v-if="form.menuType === 'C'" :span="12">
+          <ElFormItem label="组件路径" prop="component">
+            <ElInput v-model="form.component" placeholder="请输入组件路径（如 system/user/index）" />
+          </ElFormItem>
+        </ElCol>
+
+        <ElCol v-if="form.menuType !== 'M'" :span="12">
+          <ElFormItem label="权限字符" prop="perms">
+            <ElInput v-model="form.perms" clearable placeholder="请输入权限字符" />
+          </ElFormItem>
+        </ElCol>
+
+        <ElCol v-if="form.menuType === 'C'" :span="12">
+          <ElFormItem label="路由参数" prop="query">
+            <ElInput v-model="form.query" clearable placeholder='请输入路由参数，如 {"id":1}' />
+          </ElFormItem>
+        </ElCol>
+
+        <ElCol v-if="form.menuType === 'C'" :span="12">
+          <ElFormItem label="是否缓存" prop="isCache">
+            <ElRadioGroup v-model="form.isCache">
+              <ElRadio value="0">缓存</ElRadio>
+              <ElRadio value="1">不缓存</ElRadio>
+            </ElRadioGroup>
+          </ElFormItem>
+        </ElCol>
+
+        <ElCol v-if="form.menuType !== 'F'" :span="12">
+          <ElFormItem label="显示状态" prop="visible">
+            <ElRadioGroup v-model="form.visible">
+              <ElRadio value="0">显示</ElRadio>
+              <ElRadio value="1">隐藏</ElRadio>
+            </ElRadioGroup>
+          </ElFormItem>
+        </ElCol>
+
+        <ElCol :span="12">
+          <ElFormItem label="菜单状态" prop="status">
+            <ElRadioGroup v-model="form.status">
+              <ElRadio value="0">正常</ElRadio>
+              <ElRadio value="1">停用</ElRadio>
+            </ElRadioGroup>
+          </ElFormItem>
+        </ElCol>
+      </ElRow>
+    </ElForm>
 
     <template #footer>
-      <span class="dialog-footer">
-        <ElButton @click="handleCancel">取 消</ElButton>
-        <ElButton type="primary" @click="handleSubmit">确 定</ElButton>
-      </span>
+      <ElButton @click="handleCancel">取消</ElButton>
+      <ElButton type="primary" :loading="submitLoading" @click="handleSubmit">确定</ElButton>
     </template>
   </ElDialog>
 </template>
 
 <script setup lang="ts">
-  import type { FormRules } from 'element-plus'
-  import { ElIcon, ElTooltip } from 'element-plus'
-  import { QuestionFilled } from '@element-plus/icons-vue'
-  import { formatMenuTitle } from '@/utils/router'
-  import type { AppRouteRecord } from '@/types/router'
-  import type { FormItem } from '@/components/core/forms/art-form/index.vue'
-  import ArtForm from '@/components/core/forms/art-form/index.vue'
-  import { useWindowSize } from '@vueuse/core'
+  import type { FormInstance, FormRules, FormItemRule } from 'element-plus'
+  import { fetchAddMenu, fetchGetMenuDetail, fetchUpdateMenu } from '@/api/system-manage'
 
-  const { width } = useWindowSize()
-
-  /**
-   * 创建带 tooltip 的表单标签
-   * @param label 标签文本
-   * @param tooltip 提示文本
-   * @returns 渲染函数
-   */
-  const createLabelTooltip = (label: string, tooltip: string) => {
-    return () =>
-      h('span', { class: 'flex items-center' }, [
-        h('span', label),
-        h(
-          ElTooltip,
-          {
-            content: tooltip,
-            placement: 'top'
-          },
-          () => h(ElIcon, { class: 'ml-0.5 cursor-help' }, () => h(QuestionFilled))
-        )
-      ])
+  interface MenuTreeOption {
+    menuId: number
+    menuName: string
+    children?: MenuTreeOption[]
   }
 
   interface MenuFormData {
-    id: number
-    name: string
-    path: string
-    label: string
-    component: string
+    menuId?: number
+    parentId: number
+    menuName: string
     icon: string
-    isEnable: boolean
-    sort: number
-    isMenu: boolean
-    keepAlive: boolean
-    isHide: boolean
-    isHideTab: boolean
-    link: string
-    isIframe: boolean
-    showBadge: boolean
-    showTextBadge: string
-    fixedTab: boolean
-    activePath: string
-    roles: string[]
-    isFullPage: boolean
-    authName: string
-    authLabel: string
-    authIcon: string
-    authSort: number
+    menuType: Api.SystemManage.MenuType
+    orderNum: number
+    isFrame: '0' | '1'
+    isCache: '0' | '1'
+    visible: '0' | '1'
+    status: '0' | '1'
+    path: string
+    component: string
+    query: string
+    perms: string
+    routeName: string
   }
 
   interface Props {
     visible: boolean
-    editData?: AppRouteRecord | any
-    type?: 'menu' | 'button'
-    lockType?: boolean
+    mode: 'add' | 'edit'
+    menuId: number | null
+    parentId: number
+    menuOptions: MenuTreeOption[]
   }
 
   interface Emits {
     (e: 'update:visible', value: boolean): void
-    (e: 'submit', data: MenuFormData): void
+    (e: 'success'): void
   }
 
   const props = withDefaults(defineProps<Props>(), {
     visible: false,
-    type: 'menu',
-    lockType: false
+    mode: 'add',
+    menuId: null,
+    parentId: 0,
+    menuOptions: () => []
   })
-
   const emit = defineEmits<Emits>()
 
-  const formRef = ref()
-  const isEdit = ref(false)
+  const formRef = ref<FormInstance>()
+  const formLoading = ref(false)
+  const submitLoading = ref(false)
 
-  const form = reactive<MenuFormData & { menuType: 'menu' | 'button' }>({
-    menuType: 'menu',
-    id: 0,
-    name: '',
-    path: '',
-    label: '',
-    component: '',
+  const treeProps = {
+    value: 'menuId',
+    label: 'menuName',
+    children: 'children'
+  }
+
+  const createDefaultForm = (): MenuFormData => ({
+    menuId: undefined,
+    parentId: 0,
+    menuName: '',
     icon: '',
-    isEnable: true,
-    sort: 1,
-    isMenu: true,
-    keepAlive: true,
-    isHide: false,
-    isHideTab: false,
-    link: '',
-    isIframe: false,
-    showBadge: false,
-    showTextBadge: '',
-    fixedTab: false,
-    activePath: '',
-    roles: [],
-    isFullPage: false,
-    authName: '',
-    authLabel: '',
-    authIcon: '',
-    authSort: 1
+    menuType: 'M',
+    orderNum: 0,
+    isFrame: '1',
+    isCache: '0',
+    visible: '0',
+    status: '0',
+    path: '',
+    component: '',
+    query: '',
+    perms: '',
+    routeName: ''
   })
 
-  const rules = reactive<FormRules>({
-    name: [
-      { required: true, message: '请输入菜单名称', trigger: 'blur' },
-      { min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur' }
-    ],
-    path: [{ required: true, message: '请输入路由地址', trigger: 'blur' }],
-    label: [{ required: true, message: '输入权限标识', trigger: 'blur' }],
-    authName: [{ required: true, message: '请输入权限名称', trigger: 'blur' }],
-    authLabel: [{ required: true, message: '请输入权限标识', trigger: 'blur' }]
-  })
+  const form = reactive<MenuFormData>(createDefaultForm())
 
-  /**
-   * 表单项配置
-   */
-  const formItems = computed<FormItem[]>(() => {
-    const baseItems: FormItem[] = [{ label: '菜单类型', key: 'menuType', span: 24 }]
-
-    // Switch 组件的 span：小屏幕 12，大屏幕 6
-    const switchSpan = width.value < 640 ? 12 : 6
-
-    if (form.menuType === 'menu') {
-      return [
-        ...baseItems,
-        { label: '菜单名称', key: 'name', type: 'input', props: { placeholder: '菜单名称' } },
-        {
-          label: createLabelTooltip(
-            '路由地址',
-            '一级菜单：以 / 开头的绝对路径（如 /dashboard）\n二级及以下：相对路径（如 console、user）'
-          ),
-          key: 'path',
-          type: 'input',
-          props: { placeholder: '如：/dashboard 或 console' }
-        },
-        { label: '权限标识', key: 'label', type: 'input', props: { placeholder: '如：User' } },
-        {
-          label: createLabelTooltip(
-            '组件路径',
-            '一级父级菜单：填写 /index/index\n具体页面：填写组件路径（如 /system/user）\n目录菜单：留空'
-          ),
-          key: 'component',
-          type: 'input',
-          props: { placeholder: '如：/system/user 或留空' }
-        },
-        { label: '图标', key: 'icon', type: 'input', props: { placeholder: '如：ri:user-line' } },
-        {
-          label: createLabelTooltip(
-            '角色权限',
-            '仅用于前端权限模式：配置角色标识（如 R_SUPER、R_ADMIN）\n后端权限模式：无需配置'
-          ),
-          key: 'roles',
-          type: 'inputtag',
-          props: { placeholder: '输入角色标识后按回车，如：R_SUPER' }
-        },
-        {
-          label: '菜单排序',
-          key: 'sort',
-          type: 'number',
-          props: { min: 1, controlsPosition: 'right', style: { width: '100%' } }
-        },
-        {
-          label: '外部链接',
-          key: 'link',
-          type: 'input',
-          props: { placeholder: '如：https://www.example.com' }
-        },
-        {
-          label: '文本徽章',
-          key: 'showTextBadge',
-          type: 'input',
-          props: { placeholder: '如：New、Hot' }
-        },
-        {
-          label: createLabelTooltip(
-            '激活路径',
-            '用于详情页等隐藏菜单，指定高亮显示的父级菜单路径\n例如：用户详情页高亮显示"用户管理"菜单'
-          ),
-          key: 'activePath',
-          type: 'input',
-          props: { placeholder: '如：/system/user' }
-        },
-        { label: '是否启用', key: 'isEnable', type: 'switch', span: switchSpan },
-        { label: '页面缓存', key: 'keepAlive', type: 'switch', span: switchSpan },
-        { label: '隐藏菜单', key: 'isHide', type: 'switch', span: switchSpan },
-        { label: '是否内嵌', key: 'isIframe', type: 'switch', span: switchSpan },
-        { label: '显示徽章', key: 'showBadge', type: 'switch', span: switchSpan },
-        { label: '固定标签', key: 'fixedTab', type: 'switch', span: switchSpan },
-        { label: '标签隐藏', key: 'isHideTab', type: 'switch', span: switchSpan },
-        { label: '全屏页面', key: 'isFullPage', type: 'switch', span: switchSpan }
-      ]
-    } else {
-      return [
-        ...baseItems,
-        {
-          label: '权限名称',
-          key: 'authName',
-          type: 'input',
-          props: { placeholder: '如：新增、编辑、删除' }
-        },
-        {
-          label: '权限标识',
-          key: 'authLabel',
-          type: 'input',
-          props: { placeholder: '如：add、edit、delete' }
-        },
-        {
-          label: '权限排序',
-          key: 'authSort',
-          type: 'number',
-          props: { min: 1, controlsPosition: 'right', style: { width: '100%' } }
-        }
-      ]
+  const validatePath: NonNullable<FormItemRule['validator']> = (_rule, value, callback) => {
+    const current = typeof value === 'string' ? value : ''
+    if (form.menuType === 'F') {
+      callback()
+      return
     }
-  })
-
-  const dialogTitle = computed(() => {
-    const type = form.menuType === 'menu' ? '菜单' : '按钮'
-    return isEdit.value ? `编辑${type}` : `新建${type}`
-  })
-
-  /**
-   * 是否禁用菜单类型切换
-   */
-  const disableMenuType = computed(() => {
-    if (isEdit.value) return true
-    if (!isEdit.value && form.menuType === 'menu' && props.lockType) return true
-    return false
-  })
-
-  /**
-   * 重置表单数据
-   */
-  const resetForm = (): void => {
-    formRef.value?.reset()
-    form.menuType = 'menu'
+    if (!current || !current.trim()) {
+      callback(new Error('路由地址不能为空'))
+      return
+    }
+    callback()
   }
 
-  /**
-   * 加载表单数据（编辑模式）
-   */
-  const loadFormData = (): void => {
-    if (!props.editData) return
+  const validateComponent: NonNullable<FormItemRule['validator']> = (_rule, value, callback) => {
+    const current = typeof value === 'string' ? value : ''
+    if (form.menuType !== 'C') {
+      callback()
+      return
+    }
+    if (!current || !current.trim()) {
+      callback(new Error('组件路径不能为空'))
+      return
+    }
+    callback()
+  }
 
-    isEdit.value = true
+  const validatePerms: NonNullable<FormItemRule['validator']> = (_rule, value, callback) => {
+    const current = typeof value === 'string' ? value : ''
+    if (form.menuType === 'M') {
+      callback()
+      return
+    }
+    if (!current || !current.trim()) {
+      callback(new Error('权限字符不能为空'))
+      return
+    }
+    callback()
+  }
 
-    if (form.menuType === 'menu') {
-      const row = props.editData
-      form.id = row.id || 0
-      form.name = formatMenuTitle(row.meta?.title || '')
-      form.path = row.path || ''
-      form.label = row.name || ''
-      form.component = row.component || ''
-      form.icon = row.meta?.icon || ''
-      form.sort = row.meta?.sort || 1
-      form.isMenu = row.meta?.isMenu ?? true
-      form.keepAlive = row.meta?.keepAlive ?? false
-      form.isHide = row.meta?.isHide ?? false
-      form.isHideTab = row.meta?.isHideTab ?? false
-      form.isEnable = row.meta?.isEnable ?? true
-      form.link = row.meta?.link || ''
-      form.isIframe = row.meta?.isIframe ?? false
-      form.showBadge = row.meta?.showBadge ?? false
-      form.showTextBadge = row.meta?.showTextBadge || ''
-      form.fixedTab = row.meta?.fixedTab ?? false
-      form.activePath = row.meta?.activePath || ''
-      form.roles = row.meta?.roles || []
-      form.isFullPage = row.meta?.isFullPage ?? false
-    } else {
-      const row = props.editData
-      form.authName = row.title || ''
-      form.authLabel = row.authMark || ''
-      form.authIcon = row.icon || ''
-      form.authSort = row.sort || 1
+  const rules: FormRules<MenuFormData> = {
+    menuName: [{ required: true, message: '菜单名称不能为空', trigger: 'blur' }],
+    orderNum: [{ required: true, message: '显示排序不能为空', trigger: 'blur' }],
+    path: [{ validator: validatePath, trigger: 'blur' }],
+    component: [{ validator: validateComponent, trigger: 'blur' }],
+    perms: [{ validator: validatePerms, trigger: 'blur' }]
+  }
+
+  const dialogTitle = computed(() => (props.mode === 'edit' ? '编辑菜单' : '新增菜单'))
+
+  const normalizeText = (value: string): string | undefined => {
+    const text = value.trim()
+    return text ? text : undefined
+  }
+
+  const resetFormData = (): void => {
+    Object.assign(form, createDefaultForm())
+  }
+
+  const loadEditData = async (menuId: number): Promise<void> => {
+    formLoading.value = true
+    try {
+      const data = await fetchGetMenuDetail(menuId)
+      Object.assign(form, {
+        menuId: data.menuId,
+        parentId: data.parentId ?? 0,
+        menuName: data.menuName ?? '',
+        icon: data.icon ?? '',
+        menuType: data.menuType ?? 'M',
+        orderNum: data.orderNum ?? 0,
+        isFrame: data.isFrame ?? '1',
+        isCache: data.isCache ?? '0',
+        visible: data.visible ?? '0',
+        status: data.status ?? '0',
+        path: data.path ?? '',
+        component: data.component ?? '',
+        query: data.query ?? '',
+        perms: data.perms ?? '',
+        routeName: data.routeName ?? ''
+      })
+    } finally {
+      formLoading.value = false
     }
   }
 
-  /**
-   * 提交表单
-   */
+  const initializeForm = async (): Promise<void> => {
+    resetFormData()
+
+    if (props.mode === 'add') {
+      form.parentId = props.parentId ?? 0
+      return
+    }
+
+    if (props.menuId === null) {
+      throw new Error('编辑菜单时缺少 menuId')
+    }
+
+    await loadEditData(props.menuId)
+  }
+
+  const buildPayload = (): Api.SystemManage.MenuPayload => {
+    const payload: Api.SystemManage.MenuPayload = {
+      menuId: form.menuId,
+      parentId: form.parentId,
+      menuName: form.menuName.trim(),
+      icon: form.menuType === 'F' ? undefined : normalizeText(form.icon),
+      menuType: form.menuType,
+      orderNum: form.orderNum,
+      isFrame: form.menuType === 'F' ? '1' : form.isFrame,
+      isCache: form.menuType === 'C' ? form.isCache : '1',
+      visible: form.menuType === 'F' ? '0' : form.visible,
+      status: form.status,
+      path: form.menuType === 'F' ? undefined : normalizeText(form.path),
+      component: form.menuType === 'C' ? normalizeText(form.component) : undefined,
+      query: form.menuType === 'C' ? normalizeText(form.query) : undefined,
+      perms: form.menuType === 'M' ? undefined : normalizeText(form.perms),
+      routeName: form.menuType === 'C' ? normalizeText(form.routeName) : undefined
+    }
+
+    return payload
+  }
+
   const handleSubmit = async (): Promise<void> => {
-    if (!formRef.value) return
+    if (!formRef.value) {
+      return
+    }
+
+    await formRef.value.validate()
+    submitLoading.value = true
 
     try {
-      await formRef.value.validate()
-      emit('submit', { ...form })
-      ElMessage.success(`${isEdit.value ? '编辑' : '新增'}成功`)
-      handleCancel()
-    } catch {
-      ElMessage.error('表单校验失败，请检查输入')
+      const payload = buildPayload()
+      if (props.mode === 'edit') {
+        if (typeof payload.menuId !== 'number') {
+          throw new Error('更新菜单时缺少 menuId')
+        }
+        await fetchUpdateMenu(payload)
+      } else {
+        await fetchAddMenu(payload)
+      }
+
+      ElMessage.success(props.mode === 'edit' ? '修改成功' : '新增成功')
+      emit('success')
+      emit('update:visible', false)
+    } finally {
+      submitLoading.value = false
     }
   }
 
-  /**
-   * 取消操作
-   */
   const handleCancel = (): void => {
     emit('update:visible', false)
   }
 
-  /**
-   * 对话框关闭后的回调
-   */
-  const handleClosed = (): void => {
-    resetForm()
-    isEdit.value = false
+  const handleVisibleChange = (value: boolean): void => {
+    emit('update:visible', value)
   }
 
-  /**
-   * 监听对话框显示状态
-   */
+  const handleClosed = (): void => {
+    formRef.value?.resetFields()
+    resetFormData()
+  }
+
   watch(
     () => props.visible,
-    (newVal) => {
-      if (newVal) {
-        form.menuType = props.type
-        nextTick(() => {
-          if (props.editData) {
-            loadFormData()
-          }
-        })
+    async (visible) => {
+      if (!visible) {
+        return
       }
+      await initializeForm()
     }
   )
 
-  /**
-   * 监听菜单类型变化
-   */
   watch(
-    () => props.type,
-    (newType) => {
-      if (props.visible) {
-        form.menuType = newType
+    () => form.menuType,
+    (menuType) => {
+      if (menuType === 'M') {
+        form.perms = ''
+        form.component = ''
+        form.query = ''
+        form.routeName = ''
+      } else if (menuType === 'F') {
+        form.icon = ''
+        form.path = ''
+        form.component = ''
+        form.query = ''
+        form.routeName = ''
+        form.isFrame = '1'
+        form.isCache = '1'
+        form.visible = '0'
       }
     }
   )

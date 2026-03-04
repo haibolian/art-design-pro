@@ -36,6 +36,7 @@ let unauthorizedTimer: NodeJS.Timeout | null = null
 interface ExtendedAxiosRequestConfig extends AxiosRequestConfig {
   showErrorMessage?: boolean
   showSuccessMessage?: boolean
+  returnRawResponse?: boolean
 }
 
 const { VITE_API_URL, VITE_WITH_CREDENTIALS } = import.meta.env
@@ -186,6 +187,10 @@ async function request<T = any>(config: ExtendedAxiosRequestConfig): Promise<T> 
     }
 
     const responseData = res.data
+
+    if (config.returnRawResponse) {
+      return responseData as T
+    }
 
     if (Object.prototype.hasOwnProperty.call(responseData, 'data')) {
       return responseData.data as T
