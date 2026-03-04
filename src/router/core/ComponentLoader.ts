@@ -7,7 +7,9 @@
  * @author Art Design Pro Team
  */
 
-import { h } from 'vue'
+import { h, resolveComponent } from 'vue'
+
+const LAYOUT_COMPONENTS = new Set(['Layout', '/index/index'])
 
 export class ComponentLoader {
   private modules: Record<string, () => Promise<any>>
@@ -25,9 +27,22 @@ export class ComponentLoader {
       return this.createEmptyComponent()
     }
 
+    // 若依菜单组件约定
+    if (LAYOUT_COMPONENTS.has(componentPath)) {
+      return this.loadLayout()
+    }
+    if (componentPath === 'ParentView') {
+      return this.loadParentView()
+    }
+    if (componentPath === 'InnerLink') {
+      return this.loadIframe()
+    }
+
+    const normalizedPath = componentPath.startsWith('/') ? componentPath : `/${componentPath}`
+
     // 构建可能的路径
-    const fullPath = `../../views${componentPath}.vue`
-    const fullPathWithIndex = `../../views${componentPath}/index.vue`
+    const fullPath = `../../views${normalizedPath}.vue`
+    const fullPathWithIndex = `../../views${normalizedPath}/index.vue`
 
     // 先尝试直接路径，再尝试添加/index的路径
     const module = this.modules[fullPath] || this.modules[fullPathWithIndex]
@@ -54,6 +69,19 @@ export class ComponentLoader {
    */
   loadIframe(): () => Promise<any> {
     return () => import('@/views/outside/Iframe.vue')
+  }
+
+  /**
+   * 加载 ParentView 占位组件（仅渲染 router-view）
+   */
+  loadParentView(): () => Promise<any> {
+    return () =>
+      Promise.resolve({
+        name: 'ParentView',
+        render() {
+          return h(resolveComponent('RouterView'))
+        }
+      })
   }
 
   /**

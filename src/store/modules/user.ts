@@ -69,6 +69,8 @@ export const useUserStore = defineStore(
 
     // 计算属性：获取用户信息
     const getUserInfo = computed(() => info.value)
+    // 计算属性：获取权限标识
+    const getPermissions = computed(() => info.value.permissions || [])
     // 计算属性：获取设置状态
     const getSettingState = computed(() => useSettingStore().$state)
     // 计算属性：获取工作台状态
@@ -79,7 +81,11 @@ export const useUserStore = defineStore(
      * @param newInfo 新的用户信息
      */
     const setUserInfo = (newInfo: Api.Auth.UserInfo) => {
-      info.value = newInfo
+      info.value = {
+        ...newInfo,
+        roles: newInfo.roles || [],
+        permissions: newInfo.permissions || []
+      }
     }
 
     /**
@@ -213,6 +219,7 @@ export const useUserStore = defineStore(
       accessToken,
       refreshToken,
       getUserInfo,
+      getPermissions,
       getSettingState,
       getWorktabState,
       setUserInfo,

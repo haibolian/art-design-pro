@@ -35,6 +35,7 @@ import { useCommon } from '@/hooks/core/useCommon'
 export const setWorktab = (to: RouteLocationNormalized): void => {
   const worktabStore = useWorktabStore()
   const { meta, path, name, params, query } = to
+  const keepAlive = meta.keepAlive !== undefined ? Boolean(meta.keepAlive) : meta.noCache !== true
   if (!meta.isHideTab) {
     // 如果是 iframe 页面，则特殊处理工作标签页
     if (isIframe(path)) {
@@ -46,7 +47,7 @@ export const setWorktab = (to: RouteLocationNormalized): void => {
           icon: meta.icon as string,
           path,
           name: name as string,
-          keepAlive: meta.keepAlive as boolean,
+          keepAlive,
           params,
           query
         })
@@ -57,7 +58,7 @@ export const setWorktab = (to: RouteLocationNormalized): void => {
         icon: meta.icon as string,
         path,
         name: name as string,
-        keepAlive: meta.keepAlive as boolean,
+        keepAlive,
         params,
         query,
         fixedTab: meta.fixedTab as boolean

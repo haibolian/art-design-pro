@@ -43,7 +43,7 @@ export const handleMenuJump = (item: AppRouteRecord, jumpToFirst: boolean = fals
   // 递归查找第一个可见的叶子节点菜单
   const findFirstLeafMenu = (items: AppRouteRecord[]): AppRouteRecord => {
     for (const child of items) {
-      if (!child.meta.isHide) {
+      if (!child.meta.isHide && !child.hidden) {
         return child.children?.length ? findFirstLeafMenu(child.children) : child
       }
     }

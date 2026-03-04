@@ -181,7 +181,7 @@
 
   // 菜单数据
   const firstLevelMenus = computed(() => {
-    return useMenuStore().menuList.filter((menu) => !menu.meta.isHide)
+    return useMenuStore().menuList.filter((menu) => !menu.meta.isHide && !menu.hidden)
   })
 
   const menuList = computed(() => {

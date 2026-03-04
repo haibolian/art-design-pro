@@ -19,7 +19,7 @@
       <div class="box-border flex-c flex-shrink-0 flex-nowrap h-15 whitespace-nowrap">
         <template v-for="item in processedMenuList" :key="item.meta.title">
           <div
-            v-if="!item.meta.isHide"
+            v-if="!item.meta.isHide && !item.hidden"
             class="menu-item relative flex-shrink-0 h-10 px-3 text-sm flex-c c-p hover:text-theme"
             :class="{
               'menu-item-active text-theme': item.isActive

@@ -46,12 +46,19 @@ export class RouteRegistry {
     // 转换并注册路由
     const removeRouteFns: (() => void)[] = []
 
-    menuList.forEach((route) => {
-      if (route.name && !this.router.hasRoute(route.name)) {
-        const routeConfig = this.transformer.transform(route)
-        const removeRouteFn = this.router.addRoute(routeConfig as RouteRecordRaw)
-        removeRouteFns.push(removeRouteFn)
+    menuList.forEach((route, index) => {
+      const routeName = route.name ? String(route.name) : ''
+      if (routeName && this.router.hasRoute(routeName)) {
+        return
       }
+
+      const routeConfig = this.transformer.transform(route)
+      if (!routeConfig.name) {
+        routeConfig.name = `DynamicRoute_${index}_${routeConfig.path || 'unknown'}`
+      }
+
+      const removeRouteFn = this.router.addRoute(routeConfig as RouteRecordRaw)
+      removeRouteFns.push(removeRouteFn)
     })
 
     this.removeRouteFns = removeRouteFns

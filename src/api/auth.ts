@@ -7,10 +7,8 @@ import request from '@/utils/http'
  */
 export function fetchLogin(params: Api.Auth.LoginParams) {
   return request.post<Api.Auth.LoginResponse>({
-    url: '/api/auth/login',
+    url: '/login',
     params
-    // showSuccessMessage: true // 显示成功消息
-    // showErrorMessage: false // 不显示错误消息
   })
 }
 
@@ -19,11 +17,27 @@ export function fetchLogin(params: Api.Auth.LoginParams) {
  * @returns 用户信息
  */
 export function fetchGetUserInfo() {
-  return request.get<Api.Auth.UserInfo>({
-    url: '/api/user/info'
-    // 自定义请求头
-    // headers: {
-    //   'X-Custom-Header': 'your-custom-value'
-    // }
+  return request.get<Api.Auth.GetInfoResponse>({
+    url: '/getInfo'
+  })
+}
+
+/**
+ * 退出登录
+ */
+export function fetchLogout() {
+  return request.post<void>({
+    url: '/logout'
+  })
+}
+
+/**
+ * 获取验证码
+ */
+export function fetchCaptchaImage() {
+  return request.get<Api.Auth.CaptchaResponse>({
+    url: '/captchaImage',
+    timeout: 20000,
+    showErrorMessage: false
   })
 }

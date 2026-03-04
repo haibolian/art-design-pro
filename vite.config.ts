@@ -15,6 +15,16 @@ export default ({ mode }: { mode: string }) => {
   const root = process.cwd()
   const env = loadEnv(mode, root)
   const { VITE_VERSION, VITE_PORT, VITE_BASE_URL, VITE_API_URL, VITE_API_PROXY_URL } = env
+  const proxyConfig: Record<string, any> = {}
+
+  // 仅当 VITE_API_URL 为相对前缀时启用代理（如 /dev-api）
+  if (VITE_API_URL?.startsWith('/')) {
+    proxyConfig[VITE_API_URL] = {
+      target: VITE_API_PROXY_URL,
+      changeOrigin: true,
+      rewrite: (p) => p.replace(/^\/dev-api/, '')
+    }
+  }
 
   console.log(`🚀 API_URL = ${VITE_API_URL}`)
   console.log(`🚀 VERSION = ${VITE_VERSION}`)
@@ -26,12 +36,7 @@ export default ({ mode }: { mode: string }) => {
     base: VITE_BASE_URL,
     server: {
       port: Number(VITE_PORT),
-      proxy: {
-        '/api': {
-          target: VITE_API_PROXY_URL,
-          changeOrigin: true
-        }
-      },
+      proxy: proxyConfig,
       host: true
     },
     // 路径别名

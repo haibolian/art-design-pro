@@ -73,7 +73,7 @@ export class RouteValidator {
         // 组件路径重复检测
         if (route.component && typeof route.component === 'string') {
           const componentPath = route.component
-          if (componentPath !== RoutesAlias.Layout) {
+          if (componentPath !== RoutesAlias.Layout && componentPath !== 'Layout') {
             const componentKey = `${parentPath}:${componentPath}`
             if (componentPathMap.has(componentKey)) {
               warnings.push(`组件路径重复: "${componentPath}" (${fullPath})`)
@@ -144,7 +144,7 @@ export class RouteValidator {
   private checkNestedIndexComponent(routes: AppRouteRecord[], level = 1): void {
     routes.forEach((route) => {
       // 检查二级及以下菜单是否错误使用了 Layout
-      if (level > 1 && route.component === RoutesAlias.Layout) {
+      if (level > 1 && (route.component === RoutesAlias.Layout || route.component === 'Layout')) {
         this.logLayoutError(route, level)
       }
 

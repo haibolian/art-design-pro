@@ -69,7 +69,7 @@
     return items
       .filter((item) => {
         // 如果当前项被隐藏，直接过滤掉
-        if (item.meta.isHide) {
+        if (item.meta.isHide || item.hidden) {
           return false
         }
 

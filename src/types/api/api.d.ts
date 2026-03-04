@@ -24,7 +24,7 @@
  * ## 使用方式
  *
  * ```typescript
- * const params: Api.Auth.LoginParams = { userName: 'admin', password: '123456' }
+ * const params: Api.Auth.LoginParams = { username: 'admin', password: '123456' }
  * const response: Api.Auth.UserInfo = await fetchUserInfo()
  * ```
  *
@@ -64,23 +64,51 @@ declare namespace Api {
   namespace Auth {
     /** 登录参数 */
     interface LoginParams {
-      userName: string
+      username: string
       password: string
+      code?: string
+      uuid?: string
     }
 
     /** 登录响应 */
     interface LoginResponse {
       token: string
-      refreshToken: string
+    }
+
+    /** 验证码响应 */
+    interface CaptchaResponse {
+      captchaEnabled: boolean
+      img: string
+      uuid: string
+    }
+
+    /** 若依用户信息 */
+    interface UserProfile {
+      userId: number
+      userName: string
+      nickName?: string
+      email?: string
+      avatar?: string
+      [key: string]: any
+    }
+
+    /** 获取用户信息响应 */
+    interface GetInfoResponse {
+      user: UserProfile
+      roles: string[]
+      permissions: string[]
+      isDefaultModifyPwd?: boolean
+      isPasswordExpired?: boolean
     }
 
     /** 用户信息 */
     interface UserInfo {
-      buttons: string[]
       roles: string[]
+      permissions: string[]
       userId: number
       userName: string
-      email: string
+      nickName?: string
+      email?: string
       avatar?: string
     }
   }
@@ -88,23 +116,32 @@ declare namespace Api {
   /** 系统管理类型 */
   namespace SystemManage {
     /** 用户列表 */
-    type UserList = Api.Common.PaginatedResponse<UserListItem>
+    type UserList = Api.Common.PaginatedResponse<UserListItem> & {
+      rows?: UserListItem[]
+      total: number
+      pageNum?: number
+      pageSize?: number
+    }
 
     /** 用户列表项 */
     interface UserListItem {
-      id: number
-      avatar: string
-      status: string
-      userName: string
-      userGender: string
-      nickName: string
-      userPhone: string
-      userEmail: string
-      userRoles: string[]
-      createBy: string
-      createTime: string
-      updateBy: string
-      updateTime: string
+      userId?: number
+      id?: number
+      avatar?: string
+      status?: string
+      userName?: string
+      nickName?: string
+      userGender?: string
+      sex?: string
+      userPhone?: string
+      phonenumber?: string
+      userEmail?: string
+      email?: string
+      userRoles?: string[]
+      createBy?: string
+      createTime?: string
+      updateBy?: string
+      updateTime?: string
     }
 
     /** 用户搜索参数 */
@@ -114,7 +151,12 @@ declare namespace Api {
     >
 
     /** 角色列表 */
-    type RoleList = Api.Common.PaginatedResponse<RoleListItem>
+    type RoleList = Api.Common.PaginatedResponse<RoleListItem> & {
+      rows?: RoleListItem[]
+      total: number
+      pageNum?: number
+      pageSize?: number
+    }
 
     /** 角色列表项 */
     interface RoleListItem {

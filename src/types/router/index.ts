@@ -31,6 +31,10 @@ export interface RouteMeta extends Record<string | number | symbol, unknown> {
   title: string
   /** 路由图标 */
   icon?: string
+  /** 若依字段：不缓存（true 表示不缓存） */
+  noCache?: boolean
+  /** 若依字段：是否在面包屑显示 */
+  breadcrumb?: boolean
   /** 是否显示徽章 */
   showBadge?: boolean
   /** 文本徽章 */
@@ -74,6 +78,9 @@ export interface RouteMeta extends Record<string | number | symbol, unknown> {
  */
 export interface AppRouteRecord extends Omit<RouteRecordRaw, 'meta' | 'children' | 'component'> {
   id?: number
+  hidden?: boolean
+  alwaysShow?: boolean
+  query?: string
   meta: RouteMeta
   children?: AppRouteRecord[]
   component?: string | (() => Promise<any>)

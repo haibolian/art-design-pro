@@ -30,28 +30,18 @@
  * @author Art Design Pro Team
  */
 
-import { useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { useUserStore } from '@/store/modules/user'
 import { useAppMode } from '@/hooks/core/useAppMode'
-import type { AppRouteRecord } from '@/types/router'
-
-type AuthItem = NonNullable<AppRouteRecord['meta']['authList']>[number]
 
 const userStore = useUserStore()
 
 export const useAuth = () => {
-  const route = useRoute()
   const { isFrontendMode } = useAppMode()
   const { info } = storeToRefs(userStore)
 
-  // 前端按钮权限（例如：['add', 'edit']）
-  const frontendAuthList = info.value?.buttons ?? []
-
-  // 后端路由 meta 配置的权限列表（例如：[{ authMark: 'add' }]）
-  const backendAuthList: AuthItem[] = Array.isArray(route.meta.authList)
-    ? (route.meta.authList as AuthItem[])
-    : []
+  const permissionList = computed(() => info.value?.permissions ?? [])
+  const roleList = computed(() => info.value?.roles ?? [])
 
   /**
    * 检查是否拥有某权限标识（前后端模式通用）
@@ -59,16 +49,40 @@ export const useAuth = () => {
    * @returns 是否有权限
    */
   const hasAuth = (auth: string): boolean => {
-    // 前端模式
-    if (isFrontendMode.value) {
-      return frontendAuthList.includes(auth)
+    if (!auth) {
+      return false
     }
 
-    // 后端模式
-    return backendAuthList.some((item) => item?.authMark === auth)
+    if (permissionList.value.includes('*:*:*') || permissionList.value.includes('*')) {
+      return true
+    }
+
+    if (permissionList.value.includes(auth)) {
+      return true
+    }
+
+    // 前端模式下兼容旧的简写按钮权限（如 add/edit/delete）
+    if (isFrontendMode.value) {
+      return permissionList.value.some((permission) => permission.endsWith(`:${auth}`))
+    }
+
+    return false
+  }
+
+  /**
+   * 检查是否拥有任一角色
+   * @param roles 角色列表
+   * @returns 是否拥有任一角色
+   */
+  const hasRole = (roles: string[]): boolean => {
+    if (!Array.isArray(roles) || roles.length === 0) {
+      return false
+    }
+    return roles.some((role) => roleList.value.includes(role))
   }
 
   return {
-    hasAuth
+    hasAuth,
+    hasRole
   }
 }

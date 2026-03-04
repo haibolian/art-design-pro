@@ -22,7 +22,7 @@
             class="art-page-view"
             :is="Component"
             :key="route.path"
-            v-if="route.meta.keepAlive"
+            v-if="shouldKeepAlive(route)"
           />
         </KeepAlive>
       </Transition>
@@ -33,7 +33,7 @@
           class="art-page-view"
           :is="Component"
           :key="route.path"
-          v-if="!route.meta.keepAlive"
+          v-if="!shouldKeepAlive(route)"
         />
       </Transition>
     </RouterView>
@@ -116,6 +116,13 @@
       minHeight: containerMinHeight.value
     })
   )
+
+  const shouldKeepAlive = (targetRoute: any): boolean => {
+    if (targetRoute?.meta?.keepAlive !== undefined) {
+      return Boolean(targetRoute.meta.keepAlive)
+    }
+    return targetRoute?.meta?.noCache !== true
+  }
 
   const reload = () => {
     isRefresh.value = false

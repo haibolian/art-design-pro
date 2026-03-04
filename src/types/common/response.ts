@@ -26,5 +26,6 @@ export interface BaseResponse<T = unknown> {
   /** 消息 */
   msg: string
   /** 数据 */
-  data: T
+  data?: T
+  [key: string]: unknown
 }

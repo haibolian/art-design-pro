@@ -31,7 +31,8 @@ export class RouteTransformer {
    * 转换路由配置
    */
   transform(route: AppRouteRecord, depth = 0): ConvertedRoute {
-    const { component, children, ...routeConfig } = route
+    const normalizedRoute = this.normalizeRouteMeta(route)
+    const { component, children, ...routeConfig } = normalizedRoute
 
     // 基础路由配置
     const converted: ConvertedRoute = {
@@ -40,10 +41,10 @@ export class RouteTransformer {
     }
 
     // 处理不同类型的路由
-    if (route.meta.isIframe) {
-      this.handleIframeRoute(converted, route, depth)
-    } else if (this.isFirstLevelRoute(route, depth)) {
-      this.handleFirstLevelRoute(converted, route, component as string)
+    if (normalizedRoute.meta.isIframe) {
+      this.handleIframeRoute(converted, normalizedRoute, depth)
+    } else if (this.isFirstLevelRoute(normalizedRoute, depth)) {
+      this.handleFirstLevelRoute(converted, normalizedRoute, component as string)
     } else {
       this.handleNormalRoute(converted, component as string)
     }
@@ -61,6 +62,32 @@ export class RouteTransformer {
    */
   private isFirstLevelRoute(route: AppRouteRecord, depth: number): boolean {
     return depth === 0 && (!route.children || route.children.length === 0)
+  }
+
+  /**
+   * 统一标准化若依和 art 两种字段，避免业务组件分散判断
+   */
+  private normalizeRouteMeta(route: AppRouteRecord): AppRouteRecord {
+    const normalizedMeta = {
+      ...(route.meta || {})
+    }
+
+    if (typeof route.hidden === 'boolean' && normalizedMeta.isHide === undefined) {
+      normalizedMeta.isHide = route.hidden
+    }
+
+    if (typeof normalizedMeta.noCache === 'boolean' && normalizedMeta.keepAlive === undefined) {
+      normalizedMeta.keepAlive = !normalizedMeta.noCache
+    }
+
+    if (route.component === 'InnerLink' && normalizedMeta.isIframe === undefined) {
+      normalizedMeta.isIframe = true
+    }
+
+    return {
+      ...route,
+      meta: normalizedMeta
+    }
   }
 
   /**

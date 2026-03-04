@@ -35,7 +35,7 @@ export function isIframe(url: string): boolean {
  * @returns 是否为有效菜单项
  */
 const isValidMenuItem = (menuItem: AppRouteRecord): boolean => {
-  return !!(menuItem.path && menuItem.path.trim() && !menuItem.meta?.isHide)
+  return !!(menuItem.path && menuItem.path.trim() && !menuItem.meta?.isHide && !menuItem.hidden)
 }
 
 /**

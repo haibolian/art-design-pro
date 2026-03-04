@@ -131,20 +131,50 @@ export class MenuProcessor {
    */
   private normalizeMenuPaths(menuList: AppRouteRecord[], parentPath = ''): AppRouteRecord[] {
     return menuList.map((item) => {
+      const normalizedItem = this.normalizeMenuItem(item)
+
       // 构建完整路径
-      const fullPath = this.buildFullPath(item.path || '', parentPath)
+      const fullPath = this.buildFullPath(normalizedItem.path || '', parentPath)
 
       // 递归处理子菜单
-      const children = item.children?.length
-        ? this.normalizeMenuPaths(item.children, fullPath)
-        : item.children
+      const children = normalizedItem.children?.length
+        ? this.normalizeMenuPaths(normalizedItem.children, fullPath)
+        : normalizedItem.children
 
       return {
-        ...item,
+        ...normalizedItem,
         path: fullPath,
         children
       }
     })
+  }
+
+  /**
+   * 统一兼容若依字段与 art 字段
+   */
+  private normalizeMenuItem(item: AppRouteRecord): AppRouteRecord {
+    const normalizedMeta = { ...(item.meta || {}) }
+
+    if (normalizedMeta.title === undefined) {
+      normalizedMeta.title = ''
+    }
+
+    if (typeof item.hidden === 'boolean' && normalizedMeta.isHide === undefined) {
+      normalizedMeta.isHide = item.hidden
+    }
+
+    if (typeof normalizedMeta.noCache === 'boolean' && normalizedMeta.keepAlive === undefined) {
+      normalizedMeta.keepAlive = !normalizedMeta.noCache
+    }
+
+    if (item.component === 'InnerLink' && normalizedMeta.isIframe === undefined) {
+      normalizedMeta.isIframe = true
+    }
+
+    return {
+      ...item,
+      meta: normalizedMeta
+    }
   }
 
   /**
