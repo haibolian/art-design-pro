@@ -47,6 +47,6 @@ store.use(
 /**
  * 初始化 Store
  */
-export function initStore(app: App<Element>): void {
+export function setupStore(app: App<Element>): void {
   app.use(store)
 }
