@@ -30,3 +30,6 @@ export { useChart, useChartComponent, useChartOps } from './core/useChart'
 
 // 布局高度
 export { useLayoutHeight, useAutoLayoutHeight } from './core/useLayoutHeight'
+
+// 字典
+export { useDict } from './core/useDict'
