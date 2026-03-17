@@ -141,9 +141,12 @@ export class MenuProcessor {
         ? this.normalizeMenuPaths(normalizedItem.children, fullPath)
         : normalizedItem.children
 
+      const redirect = item.redirect || this.resolveDefaultRedirect(children)
+
       return {
         ...normalizedItem,
         path: fullPath,
+        redirect,
         children
       }
     })
@@ -175,6 +178,41 @@ export class MenuProcessor {
       ...item,
       meta: normalizedMeta
     }
+  }
+
+  /**
+   * 为目录型菜单推导默认跳转地址
+   */
+  private resolveDefaultRedirect(children?: AppRouteRecord[]): string | undefined {
+    if (!children?.length) {
+      return undefined
+    }
+
+    for (const child of children) {
+      if (this.isNavigableRoute(child)) {
+        return child.path
+      }
+
+      const nestedRedirect = this.resolveDefaultRedirect(child.children)
+      if (nestedRedirect) {
+        return nestedRedirect
+      }
+    }
+
+    return undefined
+  }
+
+  /**
+   * 判断子路由是否可以作为默认落点
+   */
+  private isNavigableRoute(route: AppRouteRecord): boolean {
+    return Boolean(
+      route.path &&
+        route.path !== '/' &&
+        !route.meta?.link &&
+        route.component &&
+        route.component !== ''
+    )
   }
 
   /**

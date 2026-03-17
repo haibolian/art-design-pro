@@ -35,11 +35,9 @@
 import { useUserStore } from '@/store/modules/user'
 import { App, Directive, DirectiveBinding } from 'vue'
 
-interface AuthBinding extends DirectiveBinding {
-  value: string
-}
+export type AuthDirective = Directive<HTMLElement, string>
 
-function checkAuthPermission(el: HTMLElement, binding: AuthBinding): void {
+function checkAuthPermission(el: HTMLElement, binding: DirectiveBinding<string>): void {
   const userStore = useUserStore()
   const permissions = userStore.getPermissions
   const permission = binding.value
@@ -59,7 +57,7 @@ function removeElement(el: HTMLElement): void {
   }
 }
 
-const authDirective: Directive = {
+const authDirective: AuthDirective = {
   mounted: checkAuthPermission,
   updated: checkAuthPermission
 }
