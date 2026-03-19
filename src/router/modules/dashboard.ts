@@ -19,6 +19,15 @@ export const dashboardRoutes: AppRouteRecord = {
         keepAlive: false,
         fixedTab: true
       }
+    },
+    {
+      path: 'form-demo',
+      name: 'FormDemo',
+      component: '/dashboard/form-demo',
+      meta: {
+        title: '表单组件测试',
+        keepAlive: true
+      }
     }
   ]
 }
