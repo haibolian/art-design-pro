@@ -117,6 +117,9 @@
     ElTreeSelect,
     type FormInstance
   } from 'element-plus'
+  import ArtDictCheckboxGroup from '@/components/core/forms/art-dict-checkbox-group/index.vue'
+  import ArtDictRadioGroup from '@/components/core/forms/art-dict-radio-group/index.vue'
+  import ArtDictSelect from '@/components/core/forms/art-dict-select/index.vue'
   import { calculateResponsiveSpan, type ResponsiveBreakpoint } from '@/utils/form/responsive'
 
   defineOptions({ name: 'ArtForm' })
@@ -130,6 +133,9 @@
     checkbox: ElCheckbox, // 复选框
     checkboxgroup: ElCheckboxGroup, // 复选框组
     radiogroup: ElRadioGroup, // 单选框组
+    'dict-select': ArtDictSelect, // 字典下拉
+    'dict-radio-group': ArtDictRadioGroup, // 字典单选组
+    'dict-checkbox-group': ArtDictCheckboxGroup, // 字典复选组
     date: ElDatePicker, // 日期选择器
     daterange: ElDatePicker, // 日期范围选择器
     datetime: ElDatePicker, // 日期时间选择器
