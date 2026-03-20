@@ -169,7 +169,7 @@
   // 默认分页常量
   const DEFAULT_PAGINATION_OPTIONS: PaginationOptions = {
     pageSizes: [10, 20, 30, 50, 100],
-    align: 'center',
+    align: 'right',
     background: true,
     layout: layout.value,
     hideOnSinglePage: false,
