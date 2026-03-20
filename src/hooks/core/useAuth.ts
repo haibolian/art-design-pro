@@ -34,9 +34,8 @@ import { storeToRefs } from 'pinia'
 import { useUserStore } from '@/store/modules/user'
 import { useAppMode } from '@/hooks/core/useAppMode'
 
-const userStore = useUserStore()
-
 export const useAuth = () => {
+  const userStore = useUserStore()
   const { isFrontendMode } = useAppMode()
   const { info } = storeToRefs(userStore)
 
