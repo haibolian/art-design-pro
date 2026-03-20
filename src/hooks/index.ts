@@ -33,3 +33,4 @@ export { useLayoutHeight, useAutoLayoutHeight } from './core/useLayoutHeight'
 
 // 字典
 export { useDict } from './core/useDict'
+export { useDicts } from './core/useDicts'

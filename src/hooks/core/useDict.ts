@@ -1,72 +1,53 @@
-import { computed, onMounted } from 'vue'
+import { computed, toValue, watch, type MaybeRefOrGetter } from 'vue'
 import { useDictStore } from '@/store/modules/dict'
 import type { DictOption, DictType, DictValue } from '@/types'
 
-function normalizeTypes(dictTypes: DictType[]): string[] {
-  if (!Array.isArray(dictTypes) || dictTypes.length === 0) {
-    throw new Error('[useDict] 至少需要传入一个 dictType')
+function normalizeType(dictType: DictType): string {
+  const normalized = String(dictType || '').trim()
+  if (!normalized) {
+    throw new Error('[useDict] dictType 不能为空')
   }
-
-  const normalized = dictTypes.map((dictType) => {
-    const type = String(dictType || '').trim()
-    if (!type) {
-      throw new Error('[useDict] dictType 不能为空')
-    }
-    return type
-  })
-
-  return Array.from(new Set(normalized))
+  return normalized
 }
 
-export function useDict(dictTypes: DictType[]) {
+export function useDict(dictType: MaybeRefOrGetter<DictType>) {
   const dictStore = useDictStore()
-  const resolvedTypes = normalizeTypes(dictTypes)
+  const resolvedType = computed(() => normalizeType(toValue(dictType)))
 
-  const dicts = computed<Record<string, DictOption[]>>(() => {
-    return Object.fromEntries(
-      resolvedTypes.map((dictType) => [dictType, dictStore.getOptions(dictType)])
-    )
-  })
+  const options = computed<DictOption[]>(() => dictStore.getOptions(resolvedType.value))
+  const loading = computed(() => dictStore.isLoading(resolvedType.value))
+  const error = computed(() => dictStore.getError(resolvedType.value))
+  const ready = computed(() => dictStore.hasLoaded(resolvedType.value))
 
-  const loadingMap = computed<Record<string, boolean>>(() => {
-    return Object.fromEntries(
-      resolvedTypes.map((dictType) => [dictType, dictStore.isLoading(dictType)])
-    )
-  })
+  const ensure = async () => dictStore.ensure(resolvedType.value)
 
-  const errorMap = computed<Record<string, string | null>>(() => {
-    return Object.fromEntries(
-      resolvedTypes.map((dictType) => [dictType, dictStore.getError(dictType)])
-    )
-  })
+  const getOption = (value: DictValue): DictOption | undefined => {
+    return dictStore.getOption(resolvedType.value, value)
+  }
 
-  const loading = computed(() => resolvedTypes.some((dictType) => dictStore.isLoading(dictType)))
-  const ready = computed(() => resolvedTypes.every((dictType) => dictStore.hasLoaded(dictType)))
-
-  const ensure = async () => dictStore.ensureMany(resolvedTypes)
-
-  const getOptions = (dictType: DictType): DictOption[] => dictStore.getOptions(dictType)
-
-  const getLabel = (dictType: DictType, value: DictValue): string | undefined => {
-    return dictStore.getLabel(dictType, value)
+  const getLabel = (value: DictValue): string | undefined => {
+    return dictStore.getLabel(resolvedType.value, value)
   }
 
   const clearLocalCache = () => {
     dictStore.clearLocalCache()
   }
 
-  onMounted(() => {
-    void ensure()
-  })
+  watch(
+    resolvedType,
+    async (currentDictType) => {
+      await dictStore.ensure(currentDictType)
+    },
+    { immediate: true }
+  )
 
   return {
-    dicts,
+    options,
     loading,
+    error,
     ready,
-    loadingMap,
-    errorMap,
     ensure,
-    getOptions,
+    getOption,
     getLabel,
     clearLocalCache
   }
