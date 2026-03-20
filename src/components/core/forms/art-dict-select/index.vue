@@ -9,7 +9,7 @@
         :disabled="option.status === '1'"
       />
 
-      <template v-for="(_, slotName) in slots" :key="slotName" #[slotName]="slotProps">
+      <template v-for="(_, slotName) in forwardedSlots" :key="slotName" #[slotName]="slotProps">
         <slot :name="slotName" v-bind="slotProps || {}" />
       </template>
     </ElSelect>
@@ -38,6 +38,10 @@
   const modelValue = defineModel<SelectModelValue>()
   const attrs = useAttrs()
   const slots = useSlots()
+  // 过滤 default 插槽，避免父级默认插槽覆盖内置的 ElOption 列表
+  const forwardedSlots = computed(() =>
+    Object.fromEntries(Object.entries(slots).filter(([slotName]) => slotName !== 'default'))
+  )
   const { options, loading, error } = useDict(() => props.dictType)
 </script>
 
