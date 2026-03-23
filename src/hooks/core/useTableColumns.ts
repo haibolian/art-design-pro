@@ -52,30 +52,17 @@ export const getColumnKey = <T>(col: ColumnOption<T>) =>
   SPECIAL_COLUMNS[col.type as keyof typeof SPECIAL_COLUMNS]?.prop ?? (col.prop as string)
 
 /**
- * 获取列的显示状态
- * 优先使用 visible 字段，如果不存在则使用 checked 字段
- */
-export const getColumnVisibility = <T>(col: ColumnOption<T>): boolean => {
-  // visible 优先级高于 checked
-  if (col.visible !== undefined) {
-    return col.visible
-  }
-  // 如果 visible 未定义，使用 checked，默认为 true
-  return col.checked ?? true
-}
-
-/**
  * 获取列的检查状态
  */
 export const getColumnChecks = <T>(columns: ColumnOption<T>[]) =>
   columns.map((col) => {
     const special = col.type && SPECIAL_COLUMNS[col.type]
-    const visibility = getColumnVisibility(col)
+    const visibility = col.visible ?? true
 
     if (special) {
-      return { ...col, prop: special.prop, label: special.label, checked: true, visible: true }
+      return { ...col, prop: special.prop, label: special.label, visible: true }
     }
-    return { ...col, checked: visibility, visible: visibility }
+    return { ...col, visible: visibility }
   })
 
 /**
@@ -152,14 +139,13 @@ export function useTableColumns<T = any>(
     dynamicColumns,
     (newCols) => {
       const visibilityMap = new Map(
-        columnChecks.value.map((c) => [getColumnKey(c), getColumnVisibility(c)])
+        columnChecks.value.map((c) => [getColumnKey(c), c.visible ?? true])
       )
       const newChecks = getColumnChecks(newCols).map((c) => {
         const key = getColumnKey(c)
-        const visibility = visibilityMap.has(key) ? visibilityMap.get(key) : getColumnVisibility(c)
+        const visibility = visibilityMap.has(key) ? visibilityMap.get(key) : (c.visible ?? true)
         return {
           ...c,
-          checked: visibility,
           visible: visibility
         }
       })
@@ -168,11 +154,11 @@ export function useTableColumns<T = any>(
     { deep: true }
   )
 
-  // 当前显示列（基于 columnChecks 的 checked 或 visible）
+  // 当前显示列（基于 columnChecks 的 visible）
   const columns = computed(() => {
     const colMap = new Map(dynamicColumns.value.map((c) => [getColumnKey(c), c]))
     return columnChecks.value
-      .filter((c) => getColumnVisibility(c))
+      .filter((c) => c.visible ?? true)
       .map((c) => colMap.get(getColumnKey(c)))
       .filter(Boolean) as ColumnOption<T>[]
   })
@@ -248,10 +234,9 @@ export function useTableColumns<T = any>(
       propsToToggle.forEach((p) => {
         const i = next.findIndex((c) => getColumnKey(c) === p)
         if (i > -1) {
-          const currentVisibility = getColumnVisibility(next[i])
+          const currentVisibility = next[i].visible ?? true
           const newVisibility = visible ?? !currentVisibility
-          // 同时更新 checked 和 visible 以保持兼容性
-          next[i] = { ...next[i], checked: newVisibility, visible: newVisibility }
+          next[i] = { ...next[i], visible: newVisibility }
         }
       })
 

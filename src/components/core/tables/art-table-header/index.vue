@@ -85,7 +85,7 @@
                   />
                 </div>
                 <ElCheckbox
-                  :model-value="getColumnVisibility(item)"
+                  :model-value="item.visible ?? true"
                   @update:model-value="(val) => updateColumnVisibility(item, val)"
                   :disabled="item.disabled"
                   class="flex-1 min-w-0 [&_.el-checkbox__label]:overflow-hidden [&_.el-checkbox__label]:text-ellipsis [&_.el-checkbox__label]:whitespace-nowrap"
@@ -174,24 +174,10 @@
   }>()
 
   /**
-   * 获取列的显示状态
-   * 优先使用 visible 字段，如果不存在则使用 checked 字段
-   */
-  const getColumnVisibility = (col: ColumnOption): boolean => {
-    if (col.visible !== undefined) {
-      return col.visible
-    }
-    return col.checked ?? true
-  }
-
-  /**
    * 更新列的显示状态
-   * 同时更新 checked 和 visible 字段以保持兼容性
    */
   const updateColumnVisibility = (col: ColumnOption, value: boolean | string | number): void => {
-    const boolValue = !!value
-    col.checked = boolValue
-    col.visible = boolValue
+    col.visible = !!value
   }
 
   /** 表格大小选项配置 */
