@@ -60,19 +60,16 @@
 
         <ElCol :span="12">
           <ElFormItem label="用户性别" prop="sex">
-            <ElSelect v-model="form.sex" placeholder="请选择">
-              <ElOption label="男" value="0" />
-              <ElOption label="女" value="1" />
-              <ElOption label="未知" value="2" />
-            </ElSelect>
+            <ArtDictSelect
+              v-model="form.sex"
+              :dict-type="DICT_TYPE.USER_SEX"
+              placeholder="请选择"
+            />
           </ElFormItem>
         </ElCol>
         <ElCol :span="12">
           <ElFormItem label="状态" prop="status">
-            <ElRadioGroup v-model="form.status">
-              <ElRadio value="0">正常</ElRadio>
-              <ElRadio value="1">停用</ElRadio>
-            </ElRadioGroup>
+            <ArtDictRadioGroup v-model="form.status" :dict-type="DICT_TYPE.NORMAL_DISABLE" />
           </ElFormItem>
         </ElCol>
 
@@ -126,6 +123,7 @@
     fetchGetUserDetail,
     fetchUpdateUser
   } from '@/api/system-manage'
+  import { DICT_TYPE } from '@/types'
 
   interface Props {
     visible: boolean

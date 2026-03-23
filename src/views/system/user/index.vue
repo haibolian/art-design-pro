@@ -6,7 +6,9 @@
       <ArtTableHeader v-model:columns="columnChecks" :loading="loading" @refresh="refreshData">
         <template #left>
           <ElSpace wrap>
-            <ElButton v-auth="'system:user:add'" @click="showDialog('add')" v-ripple>新增用户</ElButton>
+            <ElButton v-auth="'system:user:add'" @click="showDialog('add')" v-ripple
+              >新增用户</ElButton
+            >
             <ElButton
               v-auth="'system:user:remove'"
               :disabled="selectedRows.length === 0"
@@ -40,6 +42,7 @@
 </template>
 
 <script setup lang="ts">
+  import ArtDictTag from '@/components/core/display/art-dict-tag/index.vue'
   import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
   import { useTable } from '@/hooks/core/useTable'
   import { useAuth } from '@/hooks/core/useAuth'
@@ -49,9 +52,10 @@
     fetchGetUserList,
     fetchResetUserPwd
   } from '@/api/system-manage'
+  import { DICT_TYPE } from '@/types'
   import UserSearch from './modules/user-search.vue'
   import UserDialog from './modules/user-dialog.vue'
-  import { ElMessageBox, ElSwitch, ElTag } from 'element-plus'
+  import { ElMessageBox, ElSwitch } from 'element-plus'
 
   defineOptions({ name: 'User' })
 
@@ -125,10 +129,10 @@
           width: 120,
           formatter: (row) => {
             if (!hasAuth('system:user:edit')) {
-              const isNormal = (row.status || '0') === '0'
-              return h(ElTag, { type: isNormal ? 'success' : 'danger' }, () =>
-                isNormal ? '正常' : '停用'
-              )
+              return h(ArtDictTag, {
+                dictType: DICT_TYPE.NORMAL_DISABLE,
+                value: row.status || '0'
+              })
             }
 
             return h(ElSwitch, {
@@ -208,7 +212,9 @@
   }
 
   const deleteUser = async (row?: UserListItem): Promise<void> => {
-    const ids = row?.userId ? [row.userId] : selectedRows.value.map((item) => item.userId).filter(Boolean)
+    const ids = row?.userId
+      ? [row.userId]
+      : selectedRows.value.map((item) => item.userId).filter(Boolean)
 
     if (ids.length === 0) {
       ElMessage.warning('请先选择需要删除的用户')
@@ -266,19 +272,23 @@
     }
 
     try {
-      const { value } = await ElMessageBox.prompt(`请输入用户 "${row.userName}" 的新密码`, '重置密码', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        closeOnClickModal: false,
-        inputPattern: /^.{5,20}$/,
-        inputErrorMessage: '用户密码长度必须介于 5 和 20 之间',
-        inputValidator: (password: string) => {
-          if (/<|>|"|'|\||\\/.test(password)) {
-            return '不能包含非法字符：< > " \' \\ |'
+      const { value } = await ElMessageBox.prompt(
+        `请输入用户 "${row.userName}" 的新密码`,
+        '重置密码',
+        {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          closeOnClickModal: false,
+          inputPattern: /^.{5,20}$/,
+          inputErrorMessage: '用户密码长度必须介于 5 和 20 之间',
+          inputValidator: (password: string) => {
+            if (/<|>|"|'|\||\\/.test(password)) {
+              return '不能包含非法字符：< > " \' \\ |'
+            }
+            return true
           }
-          return true
         }
-      })
+      )
 
       await fetchResetUserPwd(row.userId, value)
       ElMessage.success(`重置成功，新密码为：${value}`)

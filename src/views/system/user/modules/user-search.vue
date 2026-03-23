@@ -10,6 +10,8 @@
 </template>
 
 <script setup lang="ts">
+  import { DICT_TYPE } from '@/types'
+
   interface Props {
     modelValue: Record<string, any>
   }
@@ -53,14 +55,11 @@
     {
       label: '状态',
       key: 'status',
-      type: 'select',
+      type: 'dict-select',
       props: {
+        dictType: DICT_TYPE.NORMAL_DISABLE,
         clearable: true,
-        placeholder: '请选择状态',
-        options: [
-          { label: '正常', value: '0' },
-          { label: '停用', value: '1' }
-        ]
+        placeholder: '请选择状态'
       }
     }
   ])

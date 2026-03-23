@@ -6,7 +6,9 @@
       <ArtTableHeader v-model:columns="columnChecks" :loading="loading" @refresh="refreshData">
         <template #left>
           <ElSpace wrap>
-            <ElButton v-auth="'system:role:add'" @click="showDialog('add')" v-ripple>新增角色</ElButton>
+            <ElButton v-auth="'system:role:add'" @click="showDialog('add')" v-ripple
+              >新增角色</ElButton
+            >
             <ElButton
               v-auth="'system:role:remove'"
               :disabled="selectedRows.length === 0"
@@ -40,17 +42,15 @@
 </template>
 
 <script setup lang="ts">
+  import ArtDictTag from '@/components/core/display/art-dict-tag/index.vue'
   import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
   import { useTable } from '@/hooks/core/useTable'
   import { useAuth } from '@/hooks/core/useAuth'
-  import {
-    fetchChangeRoleStatus,
-    fetchDeleteRole,
-    fetchGetRoleList
-  } from '@/api/system-manage'
+  import { fetchChangeRoleStatus, fetchDeleteRole, fetchGetRoleList } from '@/api/system-manage'
+  import { DICT_TYPE } from '@/types'
   import RoleSearch from './modules/role-search.vue'
   import RoleEditDialog from './modules/role-edit-dialog.vue'
-  import { ElMessageBox, ElSwitch, ElTag } from 'element-plus'
+  import { ElMessageBox, ElSwitch } from 'element-plus'
 
   defineOptions({ name: 'Role' })
 
@@ -123,10 +123,11 @@
           width: 120,
           formatter: (row) => {
             if (!hasAuth('system:role:edit')) {
-              const isNormal = (row.status || '0') === '0'
-              return h(ElTag, { type: isNormal ? 'success' : 'danger' }, () =>
-                isNormal ? '正常' : '停用'
-              )
+              return h(ArtDictTag, {
+                dictType: DICT_TYPE.NORMAL_DISABLE,
+                value: row.status || '0',
+                effect: 'light'
+              })
             }
 
             return h(ElSwitch, {
@@ -195,7 +196,9 @@
   }
 
   const deleteRole = async (row?: RoleListItem) => {
-    const ids = row?.roleId ? [row.roleId] : selectedRows.value.map((item) => item.roleId).filter(Boolean)
+    const ids = row?.roleId
+      ? [row.roleId]
+      : selectedRows.value.map((item) => item.roleId).filter(Boolean)
     if (ids.length === 0) {
       ElMessage.warning('请先选择需要删除的角色')
       return
