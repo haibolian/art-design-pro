@@ -39,8 +39,15 @@
  * @author Art Design Pro Team
  */
 
-import type { ApiResponse } from './tableCache'
 import { tableConfig } from './tableConfig'
+
+export interface ApiResponse<T = unknown> {
+  records?: T[]
+  total?: number
+  current?: number
+  size?: number
+  data?: T[]
+}
 
 // 请求参数基础接口，扩展分页参数
 export interface BaseRequestParams extends Api.Common.PaginationParams {
