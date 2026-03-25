@@ -21,6 +21,9 @@
  * @author Art Design Pro Team
  */
 
+import type { TableColumnCtx } from 'element-plus'
+import type { Component } from 'vue'
+
 // 搜索组件类型
 export type SearchComponentType =
   | 'input'
@@ -45,8 +48,12 @@ export interface SearchChangeParams {
   val: unknown
 }
 
-// 表格列配置接口
-export interface ColumnOption<T = any> {
+type TableRowData = Record<PropertyKey, any>
+
+export type TableFormatter<T = any> = TableColumnCtx<T & TableRowData>['formatter']
+export type TableCellRender<T = any> = TableFormatter<T>
+
+interface BaseColumnOption {
   // 列类型
   type?: 'selection' | 'expand' | 'index' | 'globalIndex'
   // 列属性名
@@ -71,13 +78,6 @@ export interface ColumnOption<T = any> {
   disabled?: boolean
   // 是否显示列
   visible?: boolean
-  // 自定义渲染函数
-  formatter?: (row: T) => any
-  // 插槽相关配置
-  // 是否使用插槽渲染内容
-  useSlot?: boolean
-  // 插槽名称（默认为 prop 值）
-  slotName?: string
   // 是否使用表头插槽
   useHeaderSlot?: boolean
   // 表头插槽名称（默认为 `${prop}-header`）
@@ -85,6 +85,66 @@ export interface ColumnOption<T = any> {
   // 其他属性
   [key: string]: any
 }
+
+type NormalColumnType = Exclude<BaseColumnOption['type'], 'expand'>
+
+type NormalSlotColumnOption<T = any> = BaseColumnOption & {
+  type?: NormalColumnType
+  // 是否使用插槽渲染内容
+  useSlot: true
+  // 插槽名称（默认为 prop 值）
+  slotName?: string
+  // Element Plus 原生 formatter
+  formatter?: TableFormatter<T>
+  cellRender?: never
+  component?: never
+}
+
+type NormalFormatterColumnOption<T = any> = BaseColumnOption & {
+  type?: NormalColumnType
+  useSlot?: false | undefined
+  slotName?: never
+  // Element Plus 原生 formatter
+  formatter?: TableFormatter<T>
+  cellRender?: never
+  component?: never
+}
+
+type NormalCellRenderColumnOption<T = any> = BaseColumnOption & {
+  type?: NormalColumnType
+  useSlot?: false | undefined
+  slotName?: never
+  formatter?: never
+  // ArtTable 单元格自定义渲染
+  cellRender: TableCellRender<T>
+  component?: never
+}
+
+type ExpandSlotColumnOption = BaseColumnOption & {
+  type: 'expand'
+  useSlot: true
+  slotName?: string
+  formatter?: never
+  cellRender?: never
+  component?: never
+}
+
+type ExpandComponentColumnOption = BaseColumnOption & {
+  type: 'expand'
+  useSlot?: false | undefined
+  slotName?: never
+  formatter?: never
+  cellRender?: never
+  component: Component
+}
+
+// 表格列配置接口
+export type ColumnOption<T = any> =
+  | NormalSlotColumnOption<T>
+  | NormalFormatterColumnOption<T>
+  | NormalCellRenderColumnOption<T>
+  | ExpandSlotColumnOption
+  | ExpandComponentColumnOption
 
 // 分页配置
 export interface PaginationConfig {

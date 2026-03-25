@@ -15,8 +15,17 @@
 
         <!-- 渲染展开行 -->
         <ElTableColumn v-else-if="col.type === 'expand'" v-bind="cleanColumnProps(col)">
-          <template #default="{ row }">
-            <component :is="col.formatter ? col.formatter(row) : null" />
+          <template #default="slotScope">
+            <slot
+              v-if="col.useSlot && shouldRenderSlotScope(slotScope)"
+              :name="getColumnSlotName(col)"
+              v-bind="getColumnScope(col, slotScope)"
+            />
+            <component
+              :is="col.component"
+              v-else-if="shouldRenderSlotScope(slotScope)"
+              v-bind="getColumnScope(col, slotScope)"
+            />
           </template>
         </ElTableColumn>
 
@@ -33,11 +42,9 @@
           <template v-if="col.useSlot && col.prop" #default="slotScope">
             <slot
               v-if="shouldRenderSlotScope(slotScope)"
-              :name="col.slotName || col.prop"
+              :name="getColumnSlotName(col)"
               v-bind="{
-                ...slotScope,
-                prop: col.prop,
-                value: col.prop ? slotScope.row[col.prop] : undefined
+                ...getColumnScope(col, slotScope)
               }"
             />
           </template>
@@ -75,7 +82,7 @@
   import { ref, computed, nextTick, watchEffect, getCurrentInstance, useAttrs } from 'vue'
   import type { ElTable, TableProps } from 'element-plus'
   import { storeToRefs } from 'pinia'
-  import { ColumnOption } from '@/types'
+  import type { ColumnOption } from '@/types'
   import { useTableStore } from '@/store/modules/table'
   import { useCommon } from '@/hooks/core/useCommon'
   import { useTableHeight } from '@/hooks/core/useTableHeight'
@@ -89,6 +96,13 @@
   const tableHeaderRef = ref<HTMLElement>()
   const tableStore = useTableStore()
   const { isBorder, isZebra, tableSize, isFullScreen, isHeaderBackground } = storeToRefs(tableStore)
+
+  type ArtTableRow = Record<string, any>
+  type ArtTableColumn = ColumnOption<ArtTableRow>
+  type ArtTableSlotScope = Record<string, unknown> & {
+    row: ArtTableRow
+    $index?: number
+  }
 
   /** 分页配置接口 */
   interface PaginationConfig {
@@ -123,7 +137,7 @@
     /** 加载状态 */
     loading?: boolean
     /** 列渲染配置 */
-    columns?: ColumnOption[]
+    columns?: ArtTableColumn[]
     /** 分页状态 */
     pagination?: PaginationConfig
     /** 分页配置 */
@@ -278,10 +292,29 @@
     return slotScope.$index === undefined || slotScope.$index >= 0
   }
 
+  const getColumnSlotName = (col: ArtTableColumn) => {
+    return col.slotName || col.prop || col.type || 'default'
+  }
+
+  const getColumnScope = (col: ArtTableColumn, slotScope: ArtTableSlotScope) => {
+    return {
+      ...slotScope,
+      prop: col.prop,
+      value: col.prop ? slotScope.row[col.prop] : undefined
+    }
+  }
+
   // 清理列属性，移除插槽相关的自定义属性，确保它们不会被 ElTableColumn 错误解释
-  const cleanColumnProps = (col: ColumnOption) => {
-    const columnProps = { ...col }
+  const cleanColumnProps = (col: ArtTableColumn) => {
+    const columnProps: Record<string, unknown> = { ...col }
+
+    if (col.type !== 'expand' && col.cellRender) {
+      columnProps.formatter = col.cellRender
+    }
+
     // 删除自定义的插槽控制属性
+    delete columnProps.cellRender
+    delete columnProps.component
     delete columnProps.useHeaderSlot
     delete columnProps.headerSlotName
     delete columnProps.useSlot

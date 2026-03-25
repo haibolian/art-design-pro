@@ -189,6 +189,11 @@ export function useTableColumns<T = any>(
     dynamicColumns.value = Array.isArray(result) ? result : copy
   }
 
+  const mergeColumnConfig = (
+    column: ColumnOption<T>,
+    updates: Partial<ColumnOption<T>>
+  ): ColumnOption<T> => ({ ...column, ...updates }) as ColumnOption<T>
+
   return {
     columns,
     columnChecks,
@@ -231,14 +236,14 @@ export function useTableColumns<T = any>(
           return cols.map((c) => {
             const key = getColumnKey(c)
             const upd = map.get(key)
-            return upd ? { ...c, ...upd } : c
+            return upd ? mergeColumnConfig(c, upd) : c
           })
         })
       }
       // 单个模式：prop 是字符串
       else if (updates) {
         setDynamicColumns((cols) =>
-          cols.map((c) => (getColumnKey(c) === prop ? { ...c, ...updates } : c))
+          cols.map((c) => (getColumnKey(c) === prop ? mergeColumnConfig(c, updates) : c))
         )
       }
     },
@@ -281,7 +286,7 @@ export function useTableColumns<T = any>(
         return cols.map((c) => {
           const key = getColumnKey(c)
           const upd = map.get(key)
-          return upd ? { ...c, ...upd } : c
+          return upd ? mergeColumnConfig(c, upd) : c
         })
       }),
 

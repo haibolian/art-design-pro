@@ -54,7 +54,7 @@ export interface UseTableConfig<
     /** 是否立即加载数据 */
     immediate?: boolean
     /** 列配置数组或工厂函数 */
-    columnsFactory?: TableColumnsSource<TRecord>
+    columnsSource?: TableColumnsSource<TRecord>
     /** 自定义分页字段映射 */
     paginationKey?: {
       /** 当前页码字段名，默认为 'current' */
@@ -127,7 +127,7 @@ function useTableImpl<TApiFn extends (params: any) => Promise<any>>(
       apiParams = {} as Partial<TParams>,
       excludeParams = [],
       immediate = true,
-      columnsFactory,
+      columnsSource,
       paginationKey
     },
     transform: { dataTransformer, responseAdapter = defaultResponseAdapter } = {},
@@ -199,7 +199,7 @@ function useTableImpl<TApiFn extends (params: any) => Promise<any>>(
   }))
 
   // 列配置
-  const columnConfig = columnsFactory ? useTableColumns<TRecord>(columnsFactory) : null
+  const columnConfig = columnsSource ? useTableColumns<TRecord>(columnsSource) : null
   const columns = columnConfig?.columns
   const columnChecks = columnConfig?.columnChecks
 
@@ -539,7 +539,7 @@ function useTableImpl<TApiFn extends (params: any) => Promise<any>>(
     /** 取消当前请求 */
     cancelRequest,
 
-    // 列配置 (如果提供了 columnsFactory)
+    // 列配置 (如果提供了 columnsSource)
     ...(columnConfig && {
       /** 表格列配置 */
       columns,
