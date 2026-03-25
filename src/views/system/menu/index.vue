@@ -137,7 +137,7 @@
       prop: 'menuType',
       label: '类型',
       width: 90,
-      formatter: (row: MenuListItem) => {
+      cellRender: (row: MenuListItem) => {
         const menuType = (row.menuType || 'M') as MenuType
         const meta = MENU_TYPE_META[menuType] || MENU_TYPE_META.M
         return h(ElTag, { type: meta.type }, () => meta.text)
@@ -173,7 +173,7 @@
       prop: 'status',
       label: '状态',
       width: 90,
-      formatter: (row: MenuListItem) => {
+      cellRender: (row: MenuListItem) => {
         const status = (row.status || '0') as '0' | '1'
         const meta = STATUS_META[status] || STATUS_META['0']
         return h(ElTag, { type: meta.type }, () => meta.text)
@@ -191,7 +191,7 @@
       width: 200,
       fixed: 'right',
       align: 'right',
-      formatter: (row: MenuListItem) => {
+      cellRender: (row: MenuListItem) => {
         const actions = []
 
         if (hasAuth('system:menu:add') && row.menuType !== 'F') {
@@ -269,7 +269,9 @@
       return []
     }
 
-    const hasChildren = list.some((item) => Array.isArray(item.children) && item.children.length > 0)
+    const hasChildren = list.some(
+      (item) => Array.isArray(item.children) && item.children.length > 0
+    )
     if (hasChildren) {
       return list
     }

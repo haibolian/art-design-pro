@@ -90,14 +90,14 @@
         size: 20,
         ...searchForm.value
       },
-      columnsFactory: () => [
+      columnsSource: () => [
         { type: 'selection' },
         { type: 'index', width: 60, label: '序号' },
         {
           prop: 'roleId',
           label: '角色编号',
           width: 100,
-          formatter: (row) => row.roleId ?? '-'
+          formatter: (row) => (row.roleId != null ? String(row.roleId) : '-')
         },
         {
           prop: 'roleName',
@@ -115,13 +115,13 @@
           prop: 'roleSort',
           label: '角色顺序',
           width: 100,
-          formatter: (row) => row.roleSort ?? '-'
+          formatter: (row) => (row.roleSort != null ? String(row.roleSort) : '-')
         },
         {
           prop: 'status',
           label: '状态',
           width: 120,
-          formatter: (row) => {
+          cellRender: (row) => {
             if (!hasAuth('system:role:edit')) {
               return h(ArtDictTag, {
                 dictType: DICT_TYPE.NORMAL_DISABLE,
@@ -152,7 +152,7 @@
           label: '操作',
           width: 130,
           fixed: 'right',
-          formatter: (row) => {
+          cellRender: (row) => {
             const actions = []
 
             if (hasAuth('system:role:edit') && row.roleId !== 1) {

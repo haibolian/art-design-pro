@@ -92,11 +92,9 @@
     core: {
       apiFn: fetchGetUserList,
       apiParams: {
-        current: 1,
-        size: 20,
         ...searchForm.value
       },
-      columnsFactory: () => [
+      columnsSource: [
         { type: 'selection' },
         { type: 'index', width: 60, label: '序号' },
         {
@@ -127,7 +125,7 @@
           prop: 'status',
           label: '状态',
           width: 120,
-          formatter: (row) => {
+          cellRender: (row) => {
             if (!hasAuth('system:user:edit')) {
               return h(ArtDictTag, {
                 dictType: DICT_TYPE.NORMAL_DISABLE,
@@ -157,7 +155,7 @@
           label: '操作',
           width: 160,
           fixed: 'right',
-          formatter: (row) => {
+          cellRender: (row) => {
             const actions = []
 
             if (hasAuth('system:user:edit') && row.userId !== 1) {
