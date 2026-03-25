@@ -15,7 +15,7 @@
  * ## 使用示例
  *
  * ```typescript
- * const { columns, columnChecks, toggleColumn, reorderColumns } = useTableColumns(() => [
+ * const { columns, columnChecks, toggleColumn, reorderColumns } = useTableColumns([
  *   { prop: 'name', label: '姓名', visible: true },
  *   { prop: 'email', label: '邮箱', visible: true },
  *   { prop: 'status', label: '状态', visible: false }
@@ -64,6 +64,11 @@ export const getColumnChecks = <T>(columns: ColumnOption<T>[]) =>
     }
     return { ...col, visible: visibility }
   })
+
+/**
+ * 列配置来源
+ */
+export type TableColumnsSource<T = any> = ColumnOption<T>[] | (() => ColumnOption<T>[])
 
 /**
  * 动态列配置接口
@@ -126,13 +131,27 @@ export interface DynamicColumnConfig<T = any> {
 }
 
 export function useTableColumns<T = any>(
-  columnsFactory: () => ColumnOption<T>[]
+  columnsSource: TableColumnsSource<T>
 ): {
   columns: any
   columnChecks: any
 } & DynamicColumnConfig<T> {
-  const dynamicColumns = ref<ColumnOption<T>[]>(columnsFactory())
-  const columnChecks = ref<ColumnOption<T>[]>(getColumnChecks(dynamicColumns.value))
+  const resolveColumns = () => {
+    const columns = typeof columnsSource === 'function' ? columnsSource() : columnsSource
+    return columns.map((col) => ({ ...col }))
+  }
+
+  const createColumnState = () => {
+    const columns = resolveColumns()
+    return {
+      columns,
+      checks: getColumnChecks(columns)
+    }
+  }
+
+  const initialState = createColumnState()
+  const dynamicColumns = ref<ColumnOption<T>[]>(initialState.columns)
+  const columnChecks = ref<ColumnOption<T>[]>(initialState.checks)
 
   // 当 dynamicColumns 变动时，重新生成 columnChecks 且保留已存在的显示状态
   watch(
@@ -247,7 +266,9 @@ export function useTableColumns<T = any>(
      * 重置所有列
      */
     resetColumns: () => {
-      dynamicColumns.value = columnsFactory()
+      const nextState = createColumnState()
+      dynamicColumns.value = nextState.columns
+      columnChecks.value = nextState.checks
     },
 
     /**

@@ -19,7 +19,7 @@
 import { ref, reactive, computed, onMounted, onUnmounted, nextTick, readonly } from 'vue'
 import { useWindowSize } from '@vueuse/core'
 import { useTableColumns } from './useTableColumns'
-import type { ColumnOption } from '@/types/component'
+import type { TableColumnsSource } from './useTableColumns'
 import {
   type ApiResponse,
   type TableError,
@@ -53,8 +53,8 @@ export interface UseTableConfig<
     excludeParams?: string[]
     /** 是否立即加载数据 */
     immediate?: boolean
-    /** 列配置工厂函数 */
-    columnsFactory?: () => ColumnOption<TRecord>[]
+    /** 列配置数组或工厂函数 */
+    columnsFactory?: TableColumnsSource<TRecord>
     /** 自定义分页字段映射 */
     paginationKey?: {
       /** 当前页码字段名，默认为 'current' */
