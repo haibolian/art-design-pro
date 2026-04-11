@@ -39,7 +39,7 @@
               {{ col.label }}
             </slot>
           </template>
-          <template v-if="col.useSlot && col.prop" #default="slotScope">
+          <template v-if="col.useSlot" #default="slotScope">
             <slot
               v-if="shouldRenderSlotScope(slotScope)"
               :name="getColumnSlotName(col)"
