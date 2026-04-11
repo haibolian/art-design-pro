@@ -1,50 +1,35 @@
 <template>
   <div class="user-page art-full-height">
-    <UserSearch v-model="searchForm" @search="handleSearch" @reset="resetSearchParams" />
+    <ProTable ref="proTableRef" :request="fetchGetUserList" :columns="columns">
+      <template #toolbar-left="{ selectedRows }">
+        <ElSpace wrap>
+          <ElButton v-auth="'system:user:add'" @click="showDialog('add')" v-ripple
+            >新增用户</ElButton
+          >
+          <ElButton
+            v-auth="'system:user:remove'"
+            :disabled="selectedRows.length === 0"
+            @click="deleteUser()"
+            v-ripple
+          >
+            批量删除
+          </ElButton>
+        </ElSpace>
+      </template>
+    </ProTable>
 
-    <ElCard class="art-table-card" shadow="never">
-      <ArtTableHeader v-model:columns="columnChecks" :loading="loading" @refresh="refreshData">
-        <template #left>
-          <ElSpace wrap>
-            <ElButton v-auth="'system:user:add'" @click="showDialog('add')" v-ripple
-              >新增用户</ElButton
-            >
-            <ElButton
-              v-auth="'system:user:remove'"
-              :disabled="selectedRows.length === 0"
-              @click="deleteUser()"
-              v-ripple
-            >
-              批量删除
-            </ElButton>
-          </ElSpace>
-        </template>
-      </ArtTableHeader>
-
-      <ArtTable
-        :loading="loading"
-        :data="data"
-        :columns="columns"
-        :pagination="pagination"
-        @selection-change="handleSelectionChange"
-        @pagination:size-change="handleSizeChange"
-        @pagination:current-change="handleCurrentChange"
-      />
-
-      <UserDialog
-        v-model:visible="dialogVisible"
-        :type="dialogType"
-        :user-id="currentUserId"
-        @success="handleDialogSuccess"
-      />
-    </ElCard>
+    <UserDialog
+      v-model:visible="dialogVisible"
+      :type="dialogType"
+      :user-id="currentUserId"
+      @success="handleDialogSuccess"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
   import ArtDictTag from '@/components/core/display/art-dict-tag/index.vue'
   import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
-  import { useTable } from '@/hooks/core/useTable'
   import { useAuth } from '@/hooks/core/useAuth'
   import {
     fetchChangeUserStatus,
@@ -52,8 +37,8 @@
     fetchGetUserList,
     fetchResetUserPwd
   } from '@/api/system-manage'
+  import type { ProTableColumn, ProTableExpose } from '@/types/component'
   import { DICT_TYPE } from '@/types'
-  import UserSearch from './modules/user-search.vue'
   import UserDialog from './modules/user-dialog.vue'
   import { ElMessageBox, ElSwitch } from 'element-plus'
 
@@ -67,141 +52,132 @@
   const dialogType = ref<DialogType>('add')
   const dialogVisible = ref(false)
   const currentUserId = ref<number | null>(null)
-  const selectedRows = ref<UserListItem[]>([])
+  const proTableRef = ref<ProTableExpose<UserListItem> | null>(null)
 
-  const searchForm = ref({
-    userName: undefined,
-    phonenumber: undefined,
-    status: undefined
-  })
-
-  const {
-    columns,
-    columnChecks,
-    data,
-    loading,
-    pagination,
-    getData,
-    searchParams,
-    resetSearchParams,
-    handleSizeChange,
-    handleCurrentChange,
-    refreshData,
-    refreshRemove
-  } = useTable({
-    core: {
-      apiFn: fetchGetUserList,
-      apiParams: {
-        ...searchForm.value
-      },
-      columnsSource: [
-        { type: 'selection' },
-        { type: 'index', width: 60, label: '序号' },
-        {
-          prop: 'userName',
-          label: '用户名称',
-          minWidth: 140,
-          formatter: (row) => row.userName || '-'
-        },
-        {
-          prop: 'nickName',
-          label: '用户昵称',
-          minWidth: 140,
-          formatter: (row) => row.nickName || '-'
-        },
-        {
-          prop: 'dept',
-          label: '部门',
-          minWidth: 160,
-          formatter: (row) => row.dept?.deptName || '-'
-        },
-        {
-          prop: 'phonenumber',
-          label: '手机号码',
-          minWidth: 130,
-          formatter: (row) => row.phonenumber || row.userPhone || '-'
-        },
-        {
-          prop: 'status',
-          label: '状态',
-          width: 120,
-          cellRender: (row) => {
-            if (!hasAuth('system:user:edit')) {
-              return h(ArtDictTag, {
-                dictType: DICT_TYPE.NORMAL_DISABLE,
-                value: row.status || '0'
-              })
-            }
-
-            return h(ElSwitch, {
-              modelValue: row.status || '0',
-              activeValue: '0',
-              inactiveValue: '1',
-              disabled: row.userId === 1,
-              'onUpdate:modelValue': (value: string | number | boolean) => {
-                void handleStatusChange(row, value as '0' | '1')
-              }
-            })
-          }
-        },
-        {
-          prop: 'createTime',
-          label: '创建时间',
-          minWidth: 160,
-          formatter: (row) => row.createTime || '-'
-        },
-        {
-          prop: 'operation',
-          label: '操作',
-          width: 160,
-          fixed: 'right',
-          cellRender: (row) => {
-            const actions = []
-
-            if (hasAuth('system:user:edit') && row.userId !== 1) {
-              actions.push(
-                h(ArtButtonTable, {
-                  type: 'edit',
-                  onClick: () => showDialog('edit', row)
-                })
-              )
-            }
-
-            if (hasAuth('system:user:remove') && row.userId !== 1) {
-              actions.push(
-                h(ArtButtonTable, {
-                  type: 'delete',
-                  onClick: () => deleteUser(row)
-                })
-              )
-            }
-
-            if (hasAuth('system:user:resetPwd') && row.userId !== 1) {
-              actions.push(
-                h(ArtButtonTable, {
-                  type: 'view',
-                  icon: 'ri:key-line',
-                  iconClass: 'bg-warning/12 text-warning',
-                  onClick: () => resetPassword(row)
-                })
-              )
-            }
-
-            if (actions.length === 0) {
-              return '-'
-            }
-
-            return h('div', actions)
-          }
+  const columns: ProTableColumn<UserListItem, Api.SystemManage.UserSearchParams>[] = [
+    { type: 'selection' },
+    { type: 'index', width: 60, label: '序号' },
+    {
+      prop: 'userName',
+      label: '用户名称',
+      minWidth: 140,
+      search: {
+        type: 'input',
+        props: {
+          clearable: true,
+          placeholder: '请输入用户名称'
         }
-      ]
-    }
-  })
+      },
+      formatter: (row) => row.userName || '-'
+    },
+    {
+      prop: 'nickName',
+      label: '用户昵称',
+      minWidth: 140,
+      formatter: (row) => row.nickName || '-'
+    },
+    {
+      prop: 'dept',
+      label: '部门',
+      minWidth: 160,
+      formatter: (row) => row.dept?.deptName || '-'
+    },
+    {
+      prop: 'phonenumber',
+      label: '手机号码',
+      minWidth: 130,
+      search: {
+        type: 'input',
+        props: {
+          clearable: true,
+          placeholder: '请输入手机号码',
+          maxlength: 11
+        }
+      },
+      formatter: (row) => row.phonenumber || row.userPhone || '-'
+    },
+    {
+      prop: 'status',
+      label: '状态',
+      width: 120,
+      search: {
+        type: 'dict-select',
+        props: {
+          dictType: DICT_TYPE.NORMAL_DISABLE,
+          clearable: true,
+          placeholder: '请选择状态'
+        }
+      },
+      cellRender: (row) => {
+        if (!hasAuth('system:user:edit')) {
+          return h(ArtDictTag, {
+            dictType: DICT_TYPE.NORMAL_DISABLE,
+            value: row.status || '0'
+          })
+        }
 
-  const handleSearch = (params: Record<string, any>) => {
-    Object.assign(searchParams, params)
-    getData()
-  }
+        return h(ElSwitch, {
+          modelValue: row.status || '0',
+          activeValue: '0',
+          inactiveValue: '1',
+          disabled: row.userId === 1,
+          'onUpdate:modelValue': (value: string | number | boolean) => {
+            void handleStatusChange(row, value as '0' | '1')
+          }
+        })
+      }
+    },
+    {
+      prop: 'createTime',
+      label: '创建时间',
+      minWidth: 160,
+      formatter: (row) => row.createTime || '-'
+    },
+    {
+      prop: 'operation',
+      label: '操作',
+      width: 160,
+      fixed: 'right',
+      cellRender: (row) => {
+        const actions = []
+
+        if (hasAuth('system:user:edit') && row.userId !== 1) {
+          actions.push(
+            h(ArtButtonTable, {
+              type: 'edit',
+              onClick: () => showDialog('edit', row)
+            })
+          )
+        }
+
+        if (hasAuth('system:user:remove') && row.userId !== 1) {
+          actions.push(
+            h(ArtButtonTable, {
+              type: 'delete',
+              onClick: () => deleteUser(row)
+            })
+          )
+        }
+
+        if (hasAuth('system:user:resetPwd') && row.userId !== 1) {
+          actions.push(
+            h(ArtButtonTable, {
+              type: 'view',
+              icon: 'ri:key-line',
+              iconClass: 'bg-warning/12 text-warning',
+              onClick: () => resetPassword(row)
+            })
+          )
+        }
+
+        if (actions.length === 0) {
+          return '-'
+        }
+
+        return h('div', actions)
+      }
+    }
+  ]
 
   const showDialog = (type: DialogType, row?: UserListItem): void => {
     dialogType.value = type
@@ -212,7 +188,9 @@
   const deleteUser = async (row?: UserListItem): Promise<void> => {
     const ids = row?.userId
       ? [row.userId]
-      : selectedRows.value.map((item) => item.userId).filter(Boolean)
+      : (proTableRef.value?.selectedRows ?? [])
+          .map((item: UserListItem) => item.userId)
+          .filter(Boolean)
 
     if (ids.length === 0) {
       ElMessage.warning('请先选择需要删除的用户')
@@ -231,7 +209,7 @@
       )
       await fetchDeleteUser(ids as number[])
       ElMessage.success('删除成功')
-      await refreshRemove()
+      await proTableRef.value?.refreshRemove()
     } catch (error) {
       if (error === 'cancel' || error === 'close') return
       throw error
@@ -301,10 +279,6 @@
   const handleDialogSuccess = async () => {
     dialogVisible.value = false
     currentUserId.value = null
-    await refreshData()
-  }
-
-  const handleSelectionChange = (selection: UserListItem[]): void => {
-    selectedRows.value = selection
+    await proTableRef.value?.refreshData()
   }
 </script>

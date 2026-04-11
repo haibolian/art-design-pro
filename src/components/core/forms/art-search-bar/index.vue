@@ -105,7 +105,6 @@
   import { ArrowUpBold, ArrowDownBold } from '@element-plus/icons-vue'
   import { useWindowSize } from '@vueuse/core'
   import { useI18n } from 'vue-i18n'
-  import type { Component } from 'vue'
   import {
     ElCascader,
     ElCheckbox,
@@ -128,6 +127,7 @@
   import ArtDictRadioGroup from '@/components/core/forms/art-dict-radio-group/index.vue'
   import ArtDictSelect from '@/components/core/forms/art-dict-select/index.vue'
   import { calculateResponsiveSpan, type ResponsiveBreakpoint } from '@/utils/form/responsive'
+  import type { SearchFormItem } from '@/types/component'
 
   defineOptions({ name: 'ArtSearchBar' })
 
@@ -160,33 +160,6 @@
   const isMobile = computed(() => width.value < 500)
 
   const formInstance = useTemplateRef<FormInstance>('formRef')
-
-  // 表单项配置
-  export interface SearchFormItem {
-    /** 表单项的唯一标识 */
-    key: string
-    /** 表单项的标签文本或自定义渲染函数 */
-    label: string | (() => VNode) | Component
-    /** 表单项标签的宽度，会覆盖 Form 的 labelWidth */
-    labelWidth?: string | number
-    /** 表单项类型，支持预定义的组件类型 */
-    type?: keyof typeof componentMap | string
-    /** 自定义渲染函数或组件，用于渲染自定义组件（优先级高于 type） */
-    render?: (() => VNode) | Component
-    /** 是否隐藏该表单项 */
-    hidden?: boolean
-    /** 表单项占据的列宽，基于24格栅格系统 */
-    span?: number
-    /** 选项数据，用于 select、checkbox-group、radio-group 等 */
-    options?: Record<string, any>
-    /** 传递给表单项组件的属性 */
-    props?: Record<string, any>
-    /** 表单项的插槽配置 */
-    slots?: Record<string, (() => any) | undefined>
-    /** 表单项的占位符文本 */
-    placeholder?: string
-    /** 更多属性配置请参考 ElementPlus 官方文档 */
-  }
 
   // 表单配置
   interface SearchBarProps {

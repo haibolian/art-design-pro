@@ -22,17 +22,24 @@
  */
 
 import type { TableColumnCtx } from 'element-plus'
-import type { Component } from 'vue'
+import type { Component, Ref } from 'vue'
 
 // 搜索组件类型
 export type SearchComponentType =
   | 'input'
+  | 'inputTag'
+  | 'number'
   | 'select'
-  | 'radio'
+  | 'switch'
   | 'checkbox'
+  | 'checkboxgroup'
+  | 'radiogroup'
+  | 'dict-select'
+  | 'dict-radio-group'
+  | 'dict-checkbox-group'
   | 'date'
-  | 'datetime'
   | 'daterange'
+  | 'datetime'
   | 'datetimerange'
   | 'month'
   | 'monthrange'
@@ -40,12 +47,46 @@ export type SearchComponentType =
   | 'yearrange'
   | 'week'
   | 'time'
+  | 'timepicker'
   | 'timerange'
+  | 'timeselect'
+  | 'cascader'
+  | 'treeselect'
+  | 'rate'
+  | 'slider'
 
 // 搜索框值变化参数
 export interface SearchChangeParams {
   prop: string
   val: unknown
+}
+
+// 搜索表单项配置
+export interface SearchFormItem {
+  /** 表单项的唯一标识 */
+  key: string
+  /** 表单项的标签文本或自定义渲染函数 */
+  label?: string | (() => any) | Component
+  /** 表单项标签的宽度，会覆盖 Form 的 labelWidth */
+  labelWidth?: string | number
+  /** 表单项类型，支持预定义的组件类型 */
+  type?: SearchComponentType | string
+  /** 自定义渲染函数或组件，用于渲染自定义组件（优先级高于 type） */
+  render?: (() => any) | Component
+  /** 是否隐藏该表单项 */
+  hidden?: boolean
+  /** 表单项占据的列宽，基于24格栅格系统 */
+  span?: number
+  /** 选项数据，用于 select、checkbox-group、radio-group 等 */
+  options?: Record<string, any>[]
+  /** 传递给表单项组件的属性 */
+  props?: Record<string, any>
+  /** 表单项的插槽配置 */
+  slots?: Record<string, (() => any) | undefined>
+  /** 表单项的占位符文本 */
+  placeholder?: string
+  /** 更多属性配置请参考 ElementPlus 官方文档 */
+  [key: string]: any
 }
 
 type TableRowData = Record<PropertyKey, any>
@@ -145,6 +186,57 @@ export type ColumnOption<T = any> =
   | NormalCellRenderColumnOption<T>
   | ExpandSlotColumnOption
   | ExpandComponentColumnOption
+
+export interface ProTableSearchConfig<TParams = Record<string, any>> {
+  /** 搜索字段名，默认使用列 prop */
+  key?: string
+  /** 搜索项类型 */
+  type?: SearchFormItem['type']
+  /** 搜索项标题，默认使用列 label */
+  label?: SearchFormItem['label']
+  /** 搜索项排序 */
+  order?: number
+  /** 搜索项宽度 */
+  span?: number
+  /** 搜索项组件 Props */
+  props?: Record<string, any>
+  /** 自定义搜索项渲染 */
+  render?: SearchFormItem['render']
+  /** 搜索项插槽 */
+  slots?: SearchFormItem['slots']
+  /** 搜索项默认值 */
+  defaultValue?: unknown
+  /** 将搜索值转换为请求参数 */
+  transform?: (value: unknown) => Partial<TParams>
+}
+
+export interface ProTableColumnExtension<TParams = Record<string, any>> {
+  /** 是否在表格中隐藏该列 */
+  hideInTable?: boolean
+  /** 是否在搜索区中隐藏该列 */
+  hideInSearch?: boolean
+  /** 搜索项配置 */
+  search?: boolean | ProTableSearchConfig<TParams>
+}
+
+export type ProTableColumn<T = any, TParams = Record<string, any>> = ColumnOption<T> &
+  ProTableColumnExtension<TParams>
+
+export interface ProTableExpose<TRecord = any> {
+  data: Ref<TRecord[]>
+  loading: Readonly<Ref<boolean>>
+  pagination: Readonly<Api.Common.PaginationParams>
+  searchModel: Record<string, any>
+  selectedRows: Ref<TRecord[]>
+  getData: () => Promise<void>
+  refreshData: () => Promise<void>
+  refreshCreate: () => Promise<void>
+  refreshUpdate: () => Promise<void>
+  refreshRemove: () => Promise<void>
+  resetSearch: () => Promise<void>
+  clearSelection: () => void
+  tableRef: any
+}
 
 // 分页配置
 export interface PaginationConfig {
