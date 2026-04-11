@@ -61,13 +61,7 @@
       prop: 'userName',
       label: '用户名称',
       minWidth: 140,
-      search: {
-        type: 'input',
-        props: {
-          clearable: true,
-          placeholder: '请输入用户名称'
-        }
-      },
+      search: true,
       formatter: (row) => row.userName || '-'
     },
     {
@@ -87,10 +81,7 @@
       label: '手机号码',
       minWidth: 130,
       search: {
-        type: 'input',
         props: {
-          clearable: true,
-          placeholder: '请输入手机号码',
           maxlength: 11
         }
       },
@@ -100,14 +91,8 @@
       prop: 'status',
       label: '状态',
       width: 120,
-      search: {
-        type: 'dict-select',
-        props: {
-          dictType: DICT_TYPE.NORMAL_DISABLE,
-          clearable: true,
-          placeholder: '请选择状态'
-        }
-      },
+      dictType: DICT_TYPE.NORMAL_DISABLE,
+      search: true,
       cellRender: (row) => {
         if (!hasAuth('system:user:edit')) {
           return h(ArtDictTag, {

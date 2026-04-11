@@ -23,6 +23,7 @@
 
 import type { TableColumnCtx } from 'element-plus'
 import type { Component, Ref } from 'vue'
+import type { DictType, DictValue } from '@/types/dict'
 
 // 搜索组件类型
 export type SearchComponentType =
@@ -210,17 +211,36 @@ export interface ProTableSearchConfig<TParams = Record<string, any>> {
   transform?: (value: unknown) => Partial<TParams>
 }
 
-export interface ProTableColumnExtension<TParams = Record<string, any>> {
+export type ProTableValueType = 'text' | 'dict-tag'
+
+export interface ProTableDictTagConfig<T = any> {
+  /** 字典值来源，默认使用当前列 prop 对应字段 */
+  value?: DictValue | DictValue[] | string | ((row: T) => DictValue | DictValue[] | string)
+  /** ArtDictTag 类型 */
+  type?: 'default' | 'primary' | 'success' | 'info' | 'warning' | 'danger'
+  /** ArtDictTag 效果 */
+  effect?: 'none' | 'dark' | 'light' | 'plain'
+  /** 多值分隔符 */
+  separator?: string
+}
+
+export interface ProTableColumnExtension<T = any, TParams = Record<string, any>> {
   /** 是否在表格中隐藏该列 */
   hideInTable?: boolean
   /** 是否在搜索区中隐藏该列 */
   hideInSearch?: boolean
   /** 搜索项配置 */
   search?: boolean | ProTableSearchConfig<TParams>
+  /** 单元格展示类型 */
+  valueType?: ProTableValueType
+  /** 当前列关联的字典类型 */
+  dictType?: DictType
+  /** 字典标签配置 */
+  dictTag?: ProTableDictTagConfig<T>
 }
 
 export type ProTableColumn<T = any, TParams = Record<string, any>> = ColumnOption<T> &
-  ProTableColumnExtension<TParams>
+  ProTableColumnExtension<T, TParams>
 
 export interface ProTableExpose<TRecord = any> {
   data: Ref<TRecord[]>

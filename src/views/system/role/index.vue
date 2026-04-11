@@ -29,7 +29,6 @@
             :disabled="row.roleId === 1"
             @click="showDialog('edit', row)"
             link
-            v-ripple
             >编辑</ElButton
           >
           <ElButton
@@ -37,7 +36,6 @@
             :disabled="row.roleId === 1"
             @click="deleteRole(row)"
             link
-            v-ripple
           >
             删除
           </ElButton>
@@ -56,7 +54,6 @@
 
 <script setup lang="ts">
   import ArtDictTag from '@/components/core/display/art-dict-tag/index.vue'
-  import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
   import { useAuth } from '@/hooks/core/useAuth'
   import { fetchChangeRoleStatus, fetchDeleteRole, fetchGetRoleList } from '@/api/system-manage'
   import type { ProTableColumn, ProTableExpose } from '@/types/component'
@@ -88,25 +85,14 @@
       prop: 'roleName',
       label: '角色名称',
       minWidth: 140,
-      search: {
-        type: 'input',
-        props: {
-          clearable: true,
-          placeholder: '请输入角色名称'
-        }
-      },
+      search: true,
       formatter: (row) => row.roleName || '-'
     },
     {
       prop: 'roleKey',
       label: '权限字符',
       minWidth: 160,
-      search: {
-        props: {
-          clearable: true,
-          placeholder: '请输入权限字符'
-        }
-      },
+      search: true,
       formatter: (row) => row.roleKey || row.roleCode || '-'
     },
     {
@@ -119,14 +105,8 @@
       prop: 'status',
       label: '状态',
       width: 120,
-      search: {
-        type: 'dict-select',
-        props: {
-          dictType: DICT_TYPE.NORMAL_DISABLE,
-          clearable: true,
-          placeholder: '请选择状态'
-        }
-      },
+      dictType: DICT_TYPE.NORMAL_DISABLE,
+      search: true,
       cellRender: (row) => {
         if (!hasAuth('system:role:edit')) {
           return h(ArtDictTag, {
