@@ -1,6 +1,6 @@
 <!-- 表格头部，包含表格大小、刷新、全屏、列设置、其他设置 -->
 <template>
-  <div class="flex-cb max-md:!block" id="art-table-header">
+  <div class="flex-cb max-md:!block" id="art-table-toolbar">
     <div class="flex-wrap">
       <slot name="left"></slot>
     </div>
@@ -132,7 +132,7 @@
   import type { ColumnOption } from '@/types/component'
   import { ElScrollbar } from 'element-plus'
 
-  defineOptions({ name: 'ArtTableHeader' })
+  defineOptions({ name: 'ArtTableToolbar' })
 
   const { t } = useI18n()
 

@@ -146,7 +146,7 @@
     emptyHeight?: string
     /** 空数据时显示的文本 */
     emptyText?: string
-    /** 是否开启 ArtTableHeader，解决表格高度自适应问题 */
+    /** 是否开启 ArtTableToolbar，解决表格高度自适应问题 */
     showTableHeader?: boolean
   }
 
@@ -362,7 +362,7 @@
       return
     }
 
-    const tableHeader = document.getElementById('art-table-header')
+    const tableHeader = document.getElementById('art-table-toolbar')
     if (tableHeader) {
       tableHeaderRef.value = tableHeader
     } else {

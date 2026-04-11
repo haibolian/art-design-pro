@@ -9,7 +9,7 @@
     />
 
     <ElCard class="art-table-card" shadow="never">
-      <ArtTableHeader
+      <ArtTableToolbar
         :showZebra="false"
         :loading="loading"
         v-model:columns="columnChecks"
@@ -21,7 +21,7 @@
             {{ isExpanded ? '收起' : '展开' }}
           </ElButton>
         </template>
-      </ArtTableHeader>
+      </ArtTableToolbar>
 
       <ArtTable
         :key="tableKey"

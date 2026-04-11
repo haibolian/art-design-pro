@@ -16,7 +16,7 @@
     </ArtSearchBar>
 
     <component :is="props.card ? ElCard : 'div'" class="art-table-card" v-bind="cardWrapperProps">
-      <ArtTableHeader
+      <ArtTableToolbar
         v-if="showToolbar"
         v-model:columns="columnChecks"
         :loading="loading"
@@ -32,7 +32,7 @@
         <template #right>
           <slot name="toolbar-right" v-bind="toolbarSlotScope" />
         </template>
-      </ArtTableHeader>
+      </ArtTableToolbar>
 
       <ArtTable
         ref="tableRef"
