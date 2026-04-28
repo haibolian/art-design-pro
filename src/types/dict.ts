@@ -5,11 +5,15 @@
 /** 常用字典类型常量 */
 export const DICT_TYPE = {
   NORMAL_DISABLE: 'sys_normal_disable',
+  COMMON_STATUS: 'sys_common_status',
   USER_SEX: 'sys_user_sex',
   SHOW_HIDE: 'sys_show_hide',
   YES_NO: 'sys_yes_no',
   NOTICE_TYPE: 'sys_notice_type',
-  NOTICE_STATUS: 'sys_notice_status'
+  NOTICE_STATUS: 'sys_notice_status',
+  OPER_TYPE: 'sys_oper_type',
+  JOB_GROUP: 'sys_job_group',
+  JOB_STATUS: 'sys_job_status'
 } as const
 
 /** 项目内置字典类型 */

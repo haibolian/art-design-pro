@@ -249,6 +249,18 @@
       "dictData": "Dict Data",
       "config": "Config Manage",
       "notice": "Notice Manage"
+    },
+    "monitor": {
+      "title": "System Monitor",
+      "logininfor": "Login Log",
+      "operlog": "Operation Log",
+      "online": "Online Users",
+      "job": "Scheduled Jobs",
+      "jobLog": "Job Log",
+      "server": "Server Monitor",
+      "cache": "Cache Monitor",
+      "cacheList": "Cache List",
+      "druid": "Druid Monitor"
     }
   },
   "table": {

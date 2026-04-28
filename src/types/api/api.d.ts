@@ -473,4 +473,235 @@ declare namespace Api {
 
     type NoticePayload = Partial<NoticeListItem>
   }
+
+  /** 系统监控类型 */
+  namespace Monitor {
+    /** 若依实体基类 */
+    interface BaseEntity {
+      searchValue?: string
+      createBy?: string
+      createTime?: string
+      updateBy?: string
+      updateTime?: string
+      remark?: string
+      params?: Record<string, any>
+    }
+
+    interface PageSearchParams extends Partial<Api.Common.CommonSearchParams> {
+      pageNum?: number
+      pageSize?: number
+      orderByColumn?: string
+      isAsc?: string
+    }
+
+    interface LogininforSearchParams extends PageSearchParams {
+      ipaddr?: string
+      userName?: string
+      status?: '0' | '1'
+      params?: {
+        beginTime?: string
+        endTime?: string
+      }
+    }
+
+    type LogininforList = Api.Common.PaginatedResponse<LogininforListItem> & {
+      rows?: LogininforListItem[]
+      total: number
+      pageNum?: number
+      pageSize?: number
+    }
+
+    interface LogininforListItem extends BaseEntity {
+      infoId?: number
+      userName?: string
+      ipaddr?: string
+      loginLocation?: string
+      browser?: string
+      os?: string
+      msg?: string
+      loginTime?: string
+      status?: '0' | '1'
+      [key: string]: any
+    }
+
+    interface OperlogSearchParams extends PageSearchParams {
+      operIp?: string
+      title?: string
+      operName?: string
+      businessType?: number | string
+      status?: '0' | '1'
+      params?: {
+        beginTime?: string
+        endTime?: string
+      }
+    }
+
+    type OperlogList = Api.Common.PaginatedResponse<OperlogListItem> & {
+      rows?: OperlogListItem[]
+      total: number
+      pageNum?: number
+      pageSize?: number
+    }
+
+    interface OperlogListItem extends BaseEntity {
+      operId?: number
+      title?: string
+      businessType?: number | string
+      method?: string
+      requestMethod?: string
+      operatorType?: number | string
+      operName?: string
+      deptName?: string
+      operUrl?: string
+      operIp?: string
+      operLocation?: string
+      operParam?: string
+      jsonResult?: string
+      errorMsg?: string
+      operTime?: string
+      costTime?: number
+      status?: '0' | '1' | number
+      [key: string]: any
+    }
+
+    interface OnlineSearchParams {
+      ipaddr?: string
+      userName?: string
+    }
+
+    type OnlineList = Api.Common.PaginatedResponse<OnlineListItem> & {
+      rows?: OnlineListItem[]
+      total: number
+    }
+
+    interface OnlineListItem {
+      tokenId?: string
+      deptName?: string
+      userName?: string
+      ipaddr?: string
+      loginLocation?: string
+      browser?: string
+      os?: string
+      loginTime?: string
+      [key: string]: any
+    }
+
+    interface JobSearchParams extends PageSearchParams {
+      jobName?: string
+      jobGroup?: string
+      status?: '0' | '1'
+    }
+
+    type JobList = Api.Common.PaginatedResponse<JobListItem> & {
+      rows?: JobListItem[]
+      total: number
+      pageNum?: number
+      pageSize?: number
+    }
+
+    interface JobListItem extends BaseEntity {
+      jobId?: number
+      jobName?: string
+      jobGroup?: string
+      invokeTarget?: string
+      cronExpression?: string
+      nextValidTime?: string
+      misfirePolicy?: '0' | '1' | '2' | '3'
+      concurrent?: '0' | '1'
+      status?: '0' | '1'
+      [key: string]: any
+    }
+
+    type JobPayload = Partial<JobListItem>
+
+    interface JobLogSearchParams extends PageSearchParams {
+      jobName?: string
+      jobGroup?: string
+      status?: '0' | '1'
+      params?: {
+        beginTime?: string
+        endTime?: string
+      }
+    }
+
+    type JobLogList = Api.Common.PaginatedResponse<JobLogListItem> & {
+      rows?: JobLogListItem[]
+      total: number
+      pageNum?: number
+      pageSize?: number
+    }
+
+    interface JobLogListItem extends BaseEntity {
+      jobLogId?: number
+      jobName?: string
+      jobGroup?: string
+      invokeTarget?: string
+      jobMessage?: string
+      exceptionInfo?: string
+      status?: '0' | '1' | number
+      [key: string]: any
+    }
+
+    interface ServerInfo {
+      cpu?: {
+        cpuNum?: number
+        used?: number
+        sys?: number
+        free?: number
+      }
+      mem?: {
+        total?: number
+        used?: number
+        free?: number
+        usage?: number
+      }
+      jvm?: {
+        total?: number
+        used?: number
+        free?: number
+        usage?: number
+        name?: string
+        version?: string
+        home?: string
+        startTime?: string
+        runTime?: string
+        inputArgs?: string
+      }
+      sys?: {
+        computerName?: string
+        computerIp?: string
+        osName?: string
+        osArch?: string
+        userDir?: string
+      }
+      sysFiles?: Array<{
+        dirName?: string
+        sysTypeName?: string
+        typeName?: string
+        total?: string
+        free?: string
+        used?: string
+        usage?: number
+      }>
+      [key: string]: any
+    }
+
+    interface CacheInfo {
+      info?: Record<string, string>
+      dbSize?: number
+      commandStats?: Array<{
+        name?: string
+        value?: number
+      }>
+      [key: string]: any
+    }
+
+    interface SysCache {
+      cacheName?: string
+      cacheKey?: string
+      cacheValue?: string
+      remark?: string
+      [key: string]: any
+    }
+  }
 }
