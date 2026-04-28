@@ -188,3 +188,266 @@ export function fetchDeleteMenu(menuId: number) {
     url: `/system/menu/${menuId}`
   })
 }
+
+// 获取部门列表
+export function fetchGetDeptList(params?: Api.SystemManage.DeptQueryParams) {
+  return request.get<Api.SystemManage.DeptListItem[]>({
+    url: '/system/dept/list',
+    params
+  })
+}
+
+// 获取部门列表（排除指定节点及子节点）
+export function fetchGetDeptListExcludeChild(deptId: number) {
+  return request.get<Api.SystemManage.DeptListItem[]>({
+    url: `/system/dept/list/exclude/${deptId}`
+  })
+}
+
+// 获取部门详情
+export function fetchGetDeptDetail(deptId: number) {
+  return request.get<Api.SystemManage.DeptListItem>({
+    url: `/system/dept/${deptId}`
+  })
+}
+
+// 新增部门
+export function fetchAddDept(data: Api.SystemManage.DeptPayload) {
+  return request.post<void>({
+    url: '/system/dept',
+    params: data
+  })
+}
+
+// 更新部门
+export function fetchUpdateDept(data: Api.SystemManage.DeptPayload) {
+  return request.put<void>({
+    url: '/system/dept',
+    params: data
+  })
+}
+
+// 删除部门
+export function fetchDeleteDept(deptId: number) {
+  return request.del<void>({
+    url: `/system/dept/${deptId}`
+  })
+}
+
+// 获取岗位列表
+export function fetchGetPostList(params: Api.SystemManage.PostSearchParams) {
+  const { current, size, ...rest } = params
+  return request.get<Api.SystemManage.PostList>({
+    url: '/system/post/list',
+    params: {
+      pageNum: current,
+      pageSize: size,
+      ...rest
+    }
+  })
+}
+
+export function fetchGetPostDetail(postId: number) {
+  return request.get<Api.SystemManage.PostListItem>({
+    url: `/system/post/${postId}`
+  })
+}
+
+export function fetchAddPost(data: Api.SystemManage.PostPayload) {
+  return request.post<void>({
+    url: '/system/post',
+    params: data
+  })
+}
+
+export function fetchUpdatePost(data: Api.SystemManage.PostPayload) {
+  return request.put<void>({
+    url: '/system/post',
+    params: data
+  })
+}
+
+export function fetchDeletePost(postId: number | number[]) {
+  const id = Array.isArray(postId) ? postId.join(',') : postId
+  return request.del<void>({
+    url: `/system/post/${id}`
+  })
+}
+
+// 获取字典类型列表
+export function fetchGetDictTypeList(params: Api.SystemManage.DictTypeSearchParams) {
+  const { current, size, ...rest } = params
+  return request.get<Api.SystemManage.DictTypeList>({
+    url: '/system/dict/type/list',
+    params: {
+      pageNum: current,
+      pageSize: size,
+      ...rest
+    }
+  })
+}
+
+export function fetchGetDictTypeDetail(dictId: number) {
+  return request.get<Api.SystemManage.DictTypeListItem>({
+    url: `/system/dict/type/${dictId}`
+  })
+}
+
+export function fetchAddDictType(data: Api.SystemManage.DictTypePayload) {
+  return request.post<void>({
+    url: '/system/dict/type',
+    params: data
+  })
+}
+
+export function fetchUpdateDictType(data: Api.SystemManage.DictTypePayload) {
+  return request.put<void>({
+    url: '/system/dict/type',
+    params: data
+  })
+}
+
+export function fetchDeleteDictType(dictId: number | number[]) {
+  const id = Array.isArray(dictId) ? dictId.join(',') : dictId
+  return request.del<void>({
+    url: `/system/dict/type/${id}`
+  })
+}
+
+export function fetchRefreshDictCache() {
+  return request.del<void>({
+    url: '/system/dict/type/refreshCache'
+  })
+}
+
+export function fetchGetDictTypeOptions() {
+  return request.get<Api.SystemManage.DictTypeListItem[]>({
+    url: '/system/dict/type/optionselect'
+  })
+}
+
+// 获取字典数据列表
+export function fetchGetDictDataList(params: Api.SystemManage.DictDataSearchParams) {
+  const { current, size, ...rest } = params
+  return request.get<Api.SystemManage.DictDataList>({
+    url: '/system/dict/data/list',
+    params: {
+      pageNum: current,
+      pageSize: size,
+      ...rest
+    }
+  })
+}
+
+export function fetchGetDictDataDetail(dictCode: number) {
+  return request.get<Api.SystemManage.DictDataListItem>({
+    url: `/system/dict/data/${dictCode}`
+  })
+}
+
+export function fetchAddDictData(data: Api.SystemManage.DictDataPayload) {
+  return request.post<void>({
+    url: '/system/dict/data',
+    params: data
+  })
+}
+
+export function fetchUpdateDictData(data: Api.SystemManage.DictDataPayload) {
+  return request.put<void>({
+    url: '/system/dict/data',
+    params: data
+  })
+}
+
+export function fetchDeleteDictData(dictCode: number | number[]) {
+  const id = Array.isArray(dictCode) ? dictCode.join(',') : dictCode
+  return request.del<void>({
+    url: `/system/dict/data/${id}`
+  })
+}
+
+// 获取参数配置列表
+export function fetchGetConfigList(params: Api.SystemManage.ConfigSearchParams) {
+  const { current, size, ...rest } = params
+  return request.get<Api.SystemManage.ConfigList>({
+    url: '/system/config/list',
+    params: {
+      pageNum: current,
+      pageSize: size,
+      ...rest
+    }
+  })
+}
+
+export function fetchGetConfigDetail(configId: number) {
+  return request.get<Api.SystemManage.ConfigListItem>({
+    url: `/system/config/${configId}`
+  })
+}
+
+export function fetchAddConfig(data: Api.SystemManage.ConfigPayload) {
+  return request.post<void>({
+    url: '/system/config',
+    params: data
+  })
+}
+
+export function fetchUpdateConfig(data: Api.SystemManage.ConfigPayload) {
+  return request.put<void>({
+    url: '/system/config',
+    params: data
+  })
+}
+
+export function fetchDeleteConfig(configId: number | number[]) {
+  const id = Array.isArray(configId) ? configId.join(',') : configId
+  return request.del<void>({
+    url: `/system/config/${id}`
+  })
+}
+
+export function fetchRefreshConfigCache() {
+  return request.del<void>({
+    url: '/system/config/refreshCache'
+  })
+}
+
+// 获取通知公告列表
+export function fetchGetNoticeList(params: Api.SystemManage.NoticeSearchParams) {
+  const { current, size, ...rest } = params
+  return request.get<Api.SystemManage.NoticeList>({
+    url: '/system/notice/list',
+    params: {
+      pageNum: current,
+      pageSize: size,
+      ...rest
+    }
+  })
+}
+
+export function fetchGetNoticeDetail(noticeId: number) {
+  return request.get<Api.SystemManage.NoticeListItem>({
+    url: `/system/notice/${noticeId}`
+  })
+}
+
+export function fetchAddNotice(data: Api.SystemManage.NoticePayload) {
+  return request.post<void>({
+    url: '/system/notice',
+    params: data
+  })
+}
+
+export function fetchUpdateNotice(data: Api.SystemManage.NoticePayload) {
+  return request.put<void>({
+    url: '/system/notice',
+    params: data
+  })
+}
+
+export function fetchDeleteNotice(noticeId: number | number[]) {
+  const id = Array.isArray(noticeId) ? noticeId.join(',') : noticeId
+  return request.del<void>({
+    url: `/system/notice/${id}`
+  })
+}

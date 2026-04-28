@@ -22,25 +22,6 @@
           </ElButton>
         </ElSpace>
       </template>
-      <template #operation="{ row }">
-        <ElSpace wrap>
-          <ElButton
-            v-auth="'system:role:edit'"
-            :disabled="row.roleId === 1"
-            @click="showDialog('edit', row)"
-            link
-            >编辑</ElButton
-          >
-          <ElButton
-            v-auth="'system:role:remove'"
-            :disabled="row.roleId === 1"
-            @click="deleteRole(row)"
-            link
-          >
-            删除
-          </ElButton>
-        </ElSpace>
-      </template>
     </ProTable>
 
     <RoleEditDialog
@@ -53,6 +34,7 @@
 </template>
 
 <script setup lang="ts">
+  import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
   import ArtDictTag from '@/components/core/display/art-dict-tag/index.vue'
   import { useAuth } from '@/hooks/core/useAuth'
   import { fetchChangeRoleStatus, fetchDeleteRole, fetchGetRoleList } from '@/api/system-manage'
@@ -137,35 +119,33 @@
       label: '操作',
       width: 130,
       fixed: 'right',
-      useSlot: true,
-      slotName: 'operation'
-      // cellRender: (row) => {
-      //   const actions = []
+      cellRender: (row) => {
+        const actions = []
 
-      //   if (hasAuth('system:role:edit') && row.roleId !== 1) {
-      //     actions.push(
-      //       h(ArtButtonTable, {
-      //         type: 'edit',
-      //         onClick: () => showDialog('edit', row)
-      //       })
-      //     )
-      //   }
+        if (hasAuth('system:role:edit') && row.roleId !== 1) {
+          actions.push(
+            h(ArtButtonTable, {
+              type: 'edit',
+              onClick: () => showDialog('edit', row)
+            })
+          )
+        }
 
-      //   if (hasAuth('system:role:remove') && row.roleId !== 1) {
-      //     actions.push(
-      //       h(ArtButtonTable, {
-      //         type: 'delete',
-      //         onClick: () => deleteRole(row)
-      //       })
-      //     )
-      //   }
+        if (hasAuth('system:role:remove') && row.roleId !== 1) {
+          actions.push(
+            h(ArtButtonTable, {
+              type: 'delete',
+              onClick: () => deleteRole(row)
+            })
+          )
+        }
 
-      //   if (actions.length === 0) {
-      //     return '-'
-      //   }
+        if (actions.length === 0) {
+          return '-'
+        }
 
-      //   return h('div', actions)
-      // }
+        return h('div', actions)
+      }
     }
   ]
 

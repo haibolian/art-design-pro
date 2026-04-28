@@ -6,7 +6,10 @@
 export const DICT_TYPE = {
   NORMAL_DISABLE: 'sys_normal_disable',
   USER_SEX: 'sys_user_sex',
-  SHOW_HIDE: 'sys_show_hide'
+  SHOW_HIDE: 'sys_show_hide',
+  YES_NO: 'sys_yes_no',
+  NOTICE_TYPE: 'sys_notice_type',
+  NOTICE_STATUS: 'sys_notice_status'
 } as const
 
 /** 项目内置字典类型 */

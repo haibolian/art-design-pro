@@ -115,6 +115,17 @@ declare namespace Api {
 
   /** 系统管理类型 */
   namespace SystemManage {
+    /** 若依实体基类 */
+    interface BaseEntity {
+      searchValue?: string
+      createBy?: string
+      createTime?: string
+      updateBy?: string
+      updateTime?: string
+      remark?: string
+      params?: Record<string, any>
+    }
+
     /** 树形节点 */
     interface TreeSelectNode {
       id: number | string
@@ -290,5 +301,176 @@ declare namespace Api {
 
     /** 菜单新增/编辑参数 */
     type MenuPayload = Partial<MenuListItem>
+
+    /** 部门查询参数 */
+    interface DeptQueryParams {
+      deptName?: string
+      status?: '0' | '1'
+    }
+
+    /** 部门信息 */
+    interface DeptListItem extends BaseEntity {
+      deptId?: number
+      parentId?: number
+      ancestors?: string
+      deptName?: string
+      orderNum?: number
+      leader?: string
+      phone?: string
+      email?: string
+      status?: '0' | '1'
+      children?: DeptListItem[]
+      [key: string]: any
+    }
+
+    /** 部门新增/编辑参数 */
+    type DeptPayload = Partial<DeptListItem>
+
+    /** 岗位分页查询参数 */
+    interface PostSearchParams extends Partial<Api.Common.CommonSearchParams> {
+      postCode?: string
+      postName?: string
+      status?: '0' | '1'
+    }
+
+    /** 岗位列表 */
+    type PostList = Api.Common.PaginatedResponse<PostListItem> & {
+      rows?: PostListItem[]
+      total: number
+      pageNum?: number
+      pageSize?: number
+    }
+
+    /** 岗位信息 */
+    interface PostListItem extends BaseEntity {
+      postId?: number
+      postCode?: string
+      postName?: string
+      postSort?: number
+      status?: '0' | '1'
+      [key: string]: any
+    }
+
+    /** 岗位新增/编辑参数 */
+    type PostPayload = Partial<PostListItem>
+
+    /** 字典类型分页查询参数 */
+    interface DictTypeSearchParams extends Partial<Api.Common.CommonSearchParams> {
+      dictName?: string
+      dictType?: string
+      status?: '0' | '1'
+      params?: {
+        beginTime?: string
+        endTime?: string
+      }
+    }
+
+    /** 字典类型列表 */
+    type DictTypeList = Api.Common.PaginatedResponse<DictTypeListItem> & {
+      rows?: DictTypeListItem[]
+      total: number
+      pageNum?: number
+      pageSize?: number
+    }
+
+    /** 字典类型信息 */
+    interface DictTypeListItem extends BaseEntity {
+      dictId?: number
+      dictName?: string
+      dictType?: string
+      status?: '0' | '1'
+      [key: string]: any
+    }
+
+    type DictTypePayload = Partial<DictTypeListItem>
+
+    /** 字典数据分页查询参数 */
+    interface DictDataSearchParams extends Partial<Api.Common.CommonSearchParams> {
+      dictType?: string
+      dictLabel?: string
+      status?: '0' | '1'
+    }
+
+    /** 字典数据列表 */
+    type DictDataList = Api.Common.PaginatedResponse<DictDataListItem> & {
+      rows?: DictDataListItem[]
+      total: number
+      pageNum?: number
+      pageSize?: number
+    }
+
+    /** 字典数据信息 */
+    interface DictDataListItem extends BaseEntity {
+      dictCode?: number
+      dictLabel?: string
+      dictValue?: string
+      dictType?: string
+      cssClass?: string
+      listClass?: string
+      dictSort?: number
+      isDefault?: 'Y' | 'N'
+      status?: '0' | '1'
+      [key: string]: any
+    }
+
+    type DictDataPayload = Partial<DictDataListItem>
+
+    /** 参数配置分页查询参数 */
+    interface ConfigSearchParams extends Partial<Api.Common.CommonSearchParams> {
+      configName?: string
+      configKey?: string
+      configType?: 'Y' | 'N'
+      params?: {
+        beginTime?: string
+        endTime?: string
+      }
+    }
+
+    /** 参数配置列表 */
+    type ConfigList = Api.Common.PaginatedResponse<ConfigListItem> & {
+      rows?: ConfigListItem[]
+      total: number
+      pageNum?: number
+      pageSize?: number
+    }
+
+    /** 参数配置信息 */
+    interface ConfigListItem extends BaseEntity {
+      configId?: number
+      configName?: string
+      configKey?: string
+      configValue?: string
+      configType?: 'Y' | 'N'
+      [key: string]: any
+    }
+
+    type ConfigPayload = Partial<ConfigListItem>
+
+    /** 通知公告分页查询参数 */
+    interface NoticeSearchParams extends Partial<Api.Common.CommonSearchParams> {
+      noticeTitle?: string
+      createBy?: string
+      noticeType?: '1' | '2'
+    }
+
+    /** 通知公告列表 */
+    type NoticeList = Api.Common.PaginatedResponse<NoticeListItem> & {
+      rows?: NoticeListItem[]
+      total: number
+      pageNum?: number
+      pageSize?: number
+    }
+
+    /** 通知公告信息 */
+    interface NoticeListItem extends BaseEntity {
+      noticeId?: number
+      noticeTitle?: string
+      noticeType?: '1' | '2'
+      noticeContent?: string
+      status?: '0' | '1'
+      [key: string]: any
+    }
+
+    type NoticePayload = Partial<NoticeListItem>
   }
 }

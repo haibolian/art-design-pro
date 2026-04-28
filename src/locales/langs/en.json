@@ -242,7 +242,13 @@
       "user": "User Manage",
       "role": "Role Manage",
       "userCenter": "User Center",
-      "menu": "Menu Manage"
+      "menu": "Menu Manage",
+      "dept": "Dept Manage",
+      "post": "Post Manage",
+      "dict": "Dict Manage",
+      "dictData": "Dict Data",
+      "config": "Config Manage",
+      "notice": "Notice Manage"
     }
   },
   "table": {

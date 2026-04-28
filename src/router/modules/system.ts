@@ -31,6 +31,26 @@ export const systemRoutes: AppRouteRecord = {
       }
     },
     {
+      path: 'dept',
+      name: 'Dept',
+      component: '/system/dept',
+      meta: {
+        title: 'menus.system.dept',
+        keepAlive: true,
+        roles: ['R_SUPER']
+      }
+    },
+    {
+      path: 'post',
+      name: 'Post',
+      component: '/system/post',
+      meta: {
+        title: 'menus.system.post',
+        keepAlive: true,
+        roles: ['R_SUPER']
+      }
+    },
+    {
       path: 'user-center',
       name: 'UserCenter',
       component: '/system/user-center',
@@ -54,6 +74,47 @@ export const systemRoutes: AppRouteRecord = {
           { title: '编辑', authMark: 'edit' },
           { title: '删除', authMark: 'delete' }
         ]
+      }
+    },
+    {
+      path: 'dict',
+      name: 'Dict',
+      component: '/system/dict',
+      meta: {
+        title: 'menus.system.dict',
+        keepAlive: true,
+        roles: ['R_SUPER']
+      }
+    },
+    {
+      path: 'dict-data/:dictId',
+      name: 'DictData',
+      component: '/system/dict/data',
+      meta: {
+        title: 'menus.system.dictData',
+        isHide: true,
+        keepAlive: true,
+        roles: ['R_SUPER']
+      }
+    },
+    {
+      path: 'config',
+      name: 'Config',
+      component: '/system/config',
+      meta: {
+        title: 'menus.system.config',
+        keepAlive: true,
+        roles: ['R_SUPER']
+      }
+    },
+    {
+      path: 'notice',
+      name: 'Notice',
+      component: '/system/notice',
+      meta: {
+        title: 'menus.system.notice',
+        keepAlive: true,
+        roles: ['R_SUPER']
       }
     }
   ]
